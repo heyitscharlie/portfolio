@@ -35,7 +35,7 @@ export function Nav() {
   return (
     <header className="border-border/60 sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-accent font-mono text-sm font-semibold">
+        <Link href="/" className="text-primary font-mono text-sm font-semibold">
           heyitscharlie
         </Link>
         <div className="flex items-center gap-6">
@@ -44,7 +44,7 @@ export function Nav() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-accent text-sm hover:underline"
+                className="text-primary text-sm hover:underline"
               >
                 {link.label}
               </a>
@@ -77,7 +77,7 @@ function RotatingWord() {
 
   return (
     <span
-      className="text-accent inline-block font-mono italic"
+      className="text-primary inline-block font-mono italic"
       style={{ minWidth: `${ROTATING_WORD_MIN_CH}ch` }}
       aria-live="polite"
     >
@@ -243,13 +243,25 @@ function useScrollProgress<T extends HTMLElement>() {
 // directly by the browser at runtime — none of the Lightning CSS
 // @supports color-mix() fallback risk that bit the design-system's own
 // gradient token applies here.
+//
+// Fixed hex, not var(--primary)/var(--accent): this design system's
+// primary/accent deliberately INVERT lightness per mode (dark in light
+// mode, light in dark mode — so they read as accents against whichever
+// background they're on), which made the card mirror that inversion:
+// dark foil in light mode, light foil in dark mode. A foil effect
+// should look the same regardless of mode, so these are the space
+// palette's own vivid/light purple members, held constant rather than
+// resolved live: #a710f9 is space's light-mode accent, #d183fc is
+// space's dark-mode primary — both used as fixed anchors either way.
+const HOLOGRAM_HUE_A = "#a710f9";
+const HOLOGRAM_HUE_B = "#d183fc";
 const HOLOGRAM_BACKGROUND = `linear-gradient(
   115deg,
-  color-mix(in oklch, var(--primary) 30%, white),
-  color-mix(in oklch, var(--accent) 35%, white),
-  color-mix(in oklch, var(--primary) 15%, white),
-  color-mix(in oklch, var(--accent) 45%, white),
-  color-mix(in oklch, var(--primary) 30%, white)
+  color-mix(in oklch, ${HOLOGRAM_HUE_A} 30%, white),
+  color-mix(in oklch, ${HOLOGRAM_HUE_B} 40%, white),
+  color-mix(in oklch, ${HOLOGRAM_HUE_A} 15%, white),
+  color-mix(in oklch, ${HOLOGRAM_HUE_B} 50%, white),
+  color-mix(in oklch, ${HOLOGRAM_HUE_A} 30%, white)
 )`;
 const HOLOGRAM_LINES =
   "repeating-linear-gradient(115deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 1px, transparent 1px, transparent 3px)";

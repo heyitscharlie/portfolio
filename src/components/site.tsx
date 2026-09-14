@@ -236,9 +236,23 @@ function useScrollProgress<T extends HTMLElement>() {
 // subtle, single-hue) gradient token — this is a portfolio-only effect,
 // modeled on Back Market's refurb-spec cards: a multi-hue pastel sweep
 // plus a fine diagonal diffraction-line texture, both panning together
-// on scroll so the whole row catches the light in sync.
-const HOLOGRAM_BACKGROUND =
-  "linear-gradient(115deg, #a8d0f0, #f5b8d8, #fde3a8, #b8f0d8, #c8b8f0, #a8d0f0)";
+// on scroll so the whole row catches the light in sync. The hue sweep
+// comes from the theme's own --primary/--accent (mixed toward white for
+// the pastel-foil look) rather than hardcoded hex — stays on-palette
+// automatically if mustard/space or light/dark changes, instead of an
+// arbitrary rainbow unrelated to the site's actual colors. This is a
+// plain inline style, not a Tailwind class/@apply, so it's parsed
+// directly by the browser at runtime — none of the Lightning CSS
+// @supports color-mix() fallback risk that bit the design-system's own
+// gradient token applies here.
+const HOLOGRAM_BACKGROUND = `linear-gradient(
+  115deg,
+  color-mix(in oklch, var(--primary) 30%, white),
+  color-mix(in oklch, var(--accent) 35%, white),
+  color-mix(in oklch, var(--primary) 15%, white),
+  color-mix(in oklch, var(--accent) 45%, white),
+  color-mix(in oklch, var(--primary) 30%, white)
+)`;
 const HOLOGRAM_LINES =
   "repeating-linear-gradient(115deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 1px, transparent 1px, transparent 3px)";
 

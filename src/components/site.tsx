@@ -102,11 +102,9 @@ export function Hero() {
           using AI-native workflows to build at start-up speed.
         </p>
         <p>
-          Proof of that: Tero, an agentic AI chat platform for hosts, plus a
-          portfolio of self-initiated products shipped solo. Currently
-          completing an MSc
-          in Computer Science with Artificial Intelligence at the University
-          of York.
+          Currently completing an MSc in Computer Science with Artificial
+          Intelligence at the University of York — the tools keep changing,
+          and I want to understand them properly, not just use them.
         </p>
       </div>
 

@@ -59,6 +59,11 @@ export function Nav() {
 
 const ROTATING_WORDS = ["cool", "awesome", "fast", "interesting"];
 const ROTATE_INTERVAL_MS = 2200;
+// Reserve space for the longest word so the headline's wrap point never
+// changes as shorter words rotate through — otherwise the line (and
+// everything below it) jumps every 2.2s whenever a word happens to be
+// just short enough to fit where a longer one wrapped.
+const ROTATING_WORD_MIN_CH = Math.max(...ROTATING_WORDS.map((word) => word.length));
 
 function RotatingWord() {
   const [index, setIndex] = useState(0);
@@ -71,7 +76,11 @@ function RotatingWord() {
   }, []);
 
   return (
-    <span className="text-brand-ink font-mono italic" aria-live="polite">
+    <span
+      className="text-brand-ink inline-block font-mono italic"
+      style={{ minWidth: `${ROTATING_WORD_MIN_CH}ch` }}
+      aria-live="polite"
+    >
       {ROTATING_WORDS[index]}
     </span>
   );

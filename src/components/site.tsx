@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button, Card, CardDescription, CardFooter, CardTitle, ModeToggle } from "@heyitscharlie/design-system";
+import { Button, Card, CardDescription, CardFooter, CardTitle, useTheme } from "@heyitscharlie/design-system";
+import { Moon, Sun } from "lucide-react";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
 // since GitHub/LinkedIn aren't available as importable icons any more.
@@ -31,9 +32,41 @@ const NAV_LINKS = [
   { href: "#contact", label: "Contact" },
 ];
 
+// The design-system's own ModeToggle is hardcoded to variant="outline"
+// with no way to override it from outside — reimplemented locally here
+// (same logic, Button's "default"/primary variant instead) rather than
+// changing the shared component's default for every consumer just for
+// this site.
+function PrimaryModeToggle() {
+  const { mode, setMode } = useTheme();
+  const [systemIsDark, setSystemIsDark] = useState(false);
+
+  useEffect(() => {
+    if (mode !== "system") return;
+    const media = matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => setSystemIsDark(media.matches);
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, [mode]);
+
+  const isDark = mode === "dark" || (mode === "system" && systemIsDark);
+
+  return (
+    <Button
+      variant="default"
+      size="icon"
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      onClick={() => setMode(isDark ? "light" : "dark")}
+    >
+      {isDark ? <Sun /> : <Moon />}
+    </Button>
+  );
+}
+
 export function Nav() {
   return (
-    <header className="border-border/60 sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-10 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link href="/" className="text-primary font-mono text-sm font-semibold">
           heyitscharlie
@@ -50,7 +83,7 @@ export function Nav() {
               </a>
             ))}
           </nav>
-          <ModeToggle />
+          <PrimaryModeToggle />
         </div>
       </div>
     </header>

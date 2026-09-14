@@ -164,7 +164,7 @@ export function Skills() {
   );
 }
 
-const PROJECTS = [
+const CLIENT_PROJECTS = [
   {
     name: "Agentic AI",
     description:
@@ -195,20 +195,18 @@ const PROJECTS = [
       "React Native apps taken from scratch to launch as founding engineer — one MVP strong enough to raise £150k — plus ownership of existing apps through major redesigns and new feature work.",
     tags: ["React Native"],
   },
-  {
-    name: "Independent products",
-    description:
-      "A portfolio of self-initiated products designed and shipped solo alongside contract work — kept shipping outside the client relationship.",
-    tags: ["Solo"],
-  },
 ];
 
 export function Projects() {
   return (
     <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2">
-        {PROJECTS.map((project) => (
+
+      <h3 className="text-muted-foreground mt-8 font-mono text-sm tracking-wide uppercase">
+        Client / Proprietary
+      </h3>
+      <div className="mt-4 grid gap-6 sm:grid-cols-2">
+        {CLIENT_PROJECTS.map((project) => (
           <Card key={project.name} variant="primary-transparent">
             <CardTitle>{project.name}</CardTitle>
             <CardDescription>{project.description}</CardDescription>
@@ -220,6 +218,11 @@ export function Projects() {
           </Card>
         ))}
       </div>
+
+      <h3 className="text-muted-foreground mt-12 font-mono text-sm tracking-wide uppercase">
+        Independent
+      </h3>
+      <p className="text-muted-foreground mt-4">Coming soon.</p>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Card, CardDescription, CardFooter, CardTitle, ModeToggle } from "@heyitscharlie/design-system";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
@@ -197,9 +197,57 @@ const CLIENT_PROJECTS = [
   },
 ];
 
+/** Pans the design-system gradient token's background-position as the
+ * section scrolls through the viewport — an oversized background
+ * (200% in each axis) revealing a different slice of itself as you
+ * scroll reads like light catching a holographic surface, rather than
+ * a static gradient sitting still behind the cards. rAF-throttled so
+ * the scroll listener doesn't fire a state update on every pixel. */
+function useHologramScroll() {
+  const ref = useRef<HTMLElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const measure = () => {
+      ticking = false;
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const total = rect.height + vh;
+      const scrolled = vh - rect.top;
+      setProgress(Math.min(1, Math.max(0, scrolled / total)));
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return { ref, progress };
+}
+
 export function Projects() {
+  const { ref, progress } = useHologramScroll();
+
   return (
-    <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
+    <section
+      ref={ref}
+      id="projects"
+      className="bg-gradient-brand mx-auto max-w-5xl px-6 py-20"
+      style={{
+        backgroundSize: "200% 200%",
+        backgroundPosition: `${progress * 100}% ${progress * 100}%`,
+      }}
+    >
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
 
       <h3 className="text-muted-foreground mt-8 font-mono text-sm tracking-wide uppercase">

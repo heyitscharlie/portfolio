@@ -1,6 +1,6 @@
 # portfolio
 
-Charlie Martins' personal portfolio site. Next.js App Router, built on [`@heyitscharliem/design-system`](https://www.npmjs.com/package/@heyitscharliem/design-system) for components and tokens.
+Charlie Martins' personal portfolio site. Next.js App Router, built on [`@heyitscharlie/design-system`](https://www.npmjs.com/package/@heyitscharlie/design-system) for components and tokens.
 
 Supersedes the earlier `charlie-martins/charlie-portfolio` (Vite + React) repo.
 

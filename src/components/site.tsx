@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@heyitscharliem/design-system";
+import { Button, ModeToggle } from "@heyitscharlie/design-system";
 import { Mail } from "lucide-react";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
@@ -41,17 +41,20 @@ export function Nav() {
         <Link href="/" className="text-brand-ink font-mono text-sm font-semibold">
           heyitscharlie
         </Link>
-        <nav className="flex items-center gap-6">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-brand-ink text-sm hover:underline"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
+        <div className="flex items-center gap-6">
+          <nav className="flex items-center gap-6">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-brand-ink text-sm hover:underline"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+          <ModeToggle />
+        </div>
       </div>
     </header>
   );

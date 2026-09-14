@@ -1,6 +1,6 @@
-@import "@heyitscharliem/design-system/styles.css";
+@import "@heyitscharlie/design-system/styles.css";
 
 /* Tailwind's automatic content detection skips node_modules — point it at
  * the design system's compiled output so its components' utility classes
  * (button variants, focus rings, etc.) actually get generated here. */
-@source "../../node_modules/@heyitscharliem/design-system/dist";
+@source "../../node_modules/@heyitscharlie/design-system/dist";

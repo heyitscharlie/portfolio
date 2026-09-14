@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, CardDescription, CardFooter, CardTitle, ModeToggle } from "@heyitscharlie/design-system";
+import { Button, CardDescription, CardFooter, CardTitle, ModeToggle } from "@heyitscharlie/design-system";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
 // since GitHub/LinkedIn aren't available as importable icons any more.
@@ -197,14 +197,11 @@ const CLIENT_PROJECTS = [
   },
 ];
 
-/** Pans the design-system gradient token's background-position as the
- * section scrolls through the viewport — an oversized background
- * (200% in each axis) revealing a different slice of itself as you
- * scroll reads like light catching a holographic surface, rather than
- * a static gradient sitting still behind the cards. rAF-throttled so
- * the scroll listener doesn't fire a state update on every pixel. */
-function useHologramScroll() {
-  const ref = useRef<HTMLElement>(null);
+/** Tracks scroll progress through an element (0 at "just entered the
+ * bottom of the viewport" to 1 at "just left the top") — rAF-throttled
+ * so the scroll listener doesn't fire a state update on every pixel. */
+function useScrollProgress<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -235,35 +232,62 @@ function useHologramScroll() {
   return { ref, progress };
 }
 
-export function Projects() {
-  const { ref, progress } = useHologramScroll();
+// A holographic-foil look, not the design-system's own (deliberately
+// subtle, single-hue) gradient token — this is a portfolio-only effect,
+// modeled on Back Market's refurb-spec cards: a multi-hue pastel sweep
+// plus a fine diagonal diffraction-line texture, both panning together
+// on scroll so the whole row catches the light in sync.
+const HOLOGRAM_BACKGROUND =
+  "linear-gradient(115deg, #a8d0f0, #f5b8d8, #fde3a8, #b8f0d8, #c8b8f0, #a8d0f0)";
+const HOLOGRAM_LINES =
+  "repeating-linear-gradient(115deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 1px, transparent 1px, transparent 3px)";
 
+function HolographicCard({
+  project,
+  progress,
+}: {
+  project: (typeof CLIENT_PROJECTS)[number];
+  progress: number;
+}) {
   return (
-    <section
-      ref={ref}
-      id="projects"
-      className="bg-gradient-brand mx-auto max-w-5xl px-6 py-20"
+    <div
+      className="relative flex flex-col gap-3 overflow-hidden rounded-xl p-6"
       style={{
-        backgroundSize: "200% 200%",
+        background: HOLOGRAM_BACKGROUND,
+        backgroundSize: "400% 400%",
         backgroundPosition: `${progress * 100}% ${progress * 100}%`,
       }}
     >
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ backgroundImage: HOLOGRAM_LINES, mixBlendMode: "overlay" }}
+      />
+      <div className="relative z-10 flex flex-col gap-3 text-neutral-900">
+        <CardTitle>{project.name}</CardTitle>
+        <CardDescription>{project.description}</CardDescription>
+        <CardFooter>
+          {project.tags.map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
+        </CardFooter>
+      </div>
+    </div>
+  );
+}
+
+export function Projects() {
+  const { ref, progress } = useScrollProgress<HTMLDivElement>();
+
+  return (
+    <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
 
       <h3 className="text-muted-foreground mt-8 font-mono text-sm tracking-wide uppercase">
         Client / Proprietary
       </h3>
-      <div className="mt-4 grid gap-6 sm:grid-cols-2">
+      <div ref={ref} className="mt-4 grid gap-6 sm:grid-cols-2">
         {CLIENT_PROJECTS.map((project) => (
-          <Card key={project.name} variant="primary-transparent">
-            <CardTitle>{project.name}</CardTitle>
-            <CardDescription>{project.description}</CardDescription>
-            <CardFooter>
-              {project.tags.map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </CardFooter>
-          </Card>
+          <HolographicCard key={project.name} project={project} progress={progress} />
         ))}
       </div>
 

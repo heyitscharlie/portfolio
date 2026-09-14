@@ -72,6 +72,27 @@ function PrimaryModeToggle() {
 // inherits whatever text-* class wraps it, same as every other themed
 // element on this site: no separate light/dark asset, no image request,
 // no fallback needed — it's code, not a fetched file.
+//
+// A "drawn like handwriting" animation was tried here (a
+// src/app/playground/wordmark page, since removed) and hit a real wall
+// worth knowing before attempting it again: this path is a BOUNDARY TRACE
+// (it traces the outline around the filled ink shape, from Krita's
+// "Convert to Vector Shape"), not a centerline/skeleton. A boundary trace
+// doesn't move left to right internally — tracing it with
+// stroke-dasharray/dashoffset visibly zigzags across the whole canvas,
+// because the pen has to go up one edge of connected cursive letters and
+// back down the other. Reordering subpaths doesn't fix this; it's the
+// point order *within* the single dominant subpath that's wrong. A
+// programmatic fix was attempted (rasterize → skeletonize → build a graph
+// → route a single covering walk) and produced a clean centerline, but
+// finding a walk that's both Eulerian *and* geometrically left-to-right
+// needs real graph-routing work, not just an off-the-shelf Eulerian
+// circuit (those ignore geometry entirely and jump around just as badly).
+// The actual fix, if this is worth revisiting: get the wordmark authored
+// as a genuine single-stroke vector path in the first place — drawn with
+// a vector pen/path tool as one continuous line (Krita's Freehand Path or
+// Bezier Curve tool, or traced in Inkscape over the existing artwork) —
+// rather than a filled shape traced into an outline afterward.
 function WordMark(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg

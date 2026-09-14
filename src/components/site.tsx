@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Card, CardDescription, CardFooter, CardTitle, useTheme } from "@heyitscharlie/design-system";
 import { Moon, Sun } from "lucide-react";
 import InlineSVG from "react-inlinesvg";
@@ -26,6 +26,56 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
 
 const LINKEDIN_URL = "https://linkedin.com/in/charlie-martins";
 const GITHUB_URL = "https://github.com/charlie-martins";
+
+/** Fades/slides an element in the first time it enters the viewport, once,
+ * via IntersectionObserver — not a scroll-position calculation, so it
+ * doesn't fight the nav's own rAF-throttled scroll listener. Reveals
+ * immediately (no animation) for prefers-reduced-motion, and for
+ * already-in-view elements (Hero at page load) the observer's first
+ * callback fires right after mount, so it plays once as an entrance
+ * rather than waiting on a scroll event that may never come. Returns a
+ * ref + className/style to spread onto whatever element should animate,
+ * rather than wrapping children in an extra element.
+ *
+ * Used both on whole sections AND on the individual pieces inside them
+ * (nested reveals) — a section fading in while its own children are
+ * also independently fading in isn't a conflict: both start at opacity-0
+ * and end at opacity-100, the nesting only affects how the transition
+ * looks mid-flight, not the settled result. delayMs staggers siblings
+ * (a group of cards, a couple of paragraphs) so they cascade in one
+ * after another instead of all firing together. */
+function useReveal<T extends HTMLElement>(delayMs = 0) {
+  const ref = useRef<T>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return {
+    ref,
+    className: `transition-all duration-700 ease-out ${
+      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+    }`,
+    style: { transitionDelay: `${delayMs}ms` },
+  };
+}
 
 const NAV_LINKS = [
   { href: "#projects", label: "Projects" },
@@ -115,6 +165,11 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // Deliberately not checking window.scrollY on mount: browsers restore
+    // scroll position across refreshes, so a reload after scrolling down
+    // would immediately read as "scrolled" and start filled. The nav
+    // should always start transparent and only react to scroll events
+    // that happen from here on.
     let ticking = false;
     const handleScroll = () => {
       if (ticking) return;
@@ -124,7 +179,6 @@ export function Nav() {
         ticking = false;
       });
     };
-    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -211,13 +265,24 @@ const OTHER_SKILLS = [
 // ending on the skill tags and the social links rather than a second
 // heading breaking the page in two.
 export function Hero() {
+  const reveal = useReveal<HTMLElement>();
+  const introReveal = useReveal<HTMLDivElement>();
+  const skillsReveal = useReveal<HTMLUListElement>(100);
+  const socialReveal = useReveal<HTMLDivElement>(200);
   return (
-    <section className="mx-auto max-w-5xl px-6 pt-20 pb-20">
+    <section
+      ref={reveal.ref}
+      className={`mx-auto max-w-5xl px-6 pt-20 pb-20 ${reveal.className}`}
+    >
       <h1 className="text-5xl font-bold tracking-tight text-balance sm:text-6xl">
         Let&apos;s build something <RotatingWord />
       </h1>
 
-      <div className="mt-12 flex items-start gap-8">
+      <div
+        ref={introReveal.ref}
+        style={introReveal.style}
+        className={`mt-12 flex items-start gap-8 ${introReveal.className}`}
+      >
         <div className="max-w-2xl space-y-4 text-foreground/80">
           <p>
             Senior product engineer with six years building SPAs, mobile apps,
@@ -247,7 +312,11 @@ export function Hero() {
         />
       </div>
 
-      <ul className="mt-12 flex flex-wrap gap-2">
+      <ul
+        ref={skillsReveal.ref}
+        style={skillsReveal.style}
+        className={`mt-12 flex flex-wrap gap-2 ${skillsReveal.className}`}
+      >
         {CORE_SKILLS.map((skill) => (
           <li
             key={skill}
@@ -266,7 +335,11 @@ export function Hero() {
         ))}
       </ul>
 
-      <div className="mt-12 flex gap-3">
+      <div
+        ref={socialReveal.ref}
+        style={socialReveal.style}
+        className={`mt-12 flex gap-3 ${socialReveal.className}`}
+      >
         <Button asChild variant="default" size="icon" aria-label="LinkedIn">
           <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
             <LinkedinIcon className="size-4" />
@@ -316,31 +389,50 @@ const CLIENT_PROJECTS = [
 ];
 
 export function Projects() {
+  const reveal = useReveal<HTMLElement>();
+  const clientReveal = useReveal<HTMLDivElement>();
+  const independentReveal = useReveal<HTMLDivElement>(100);
   return (
-    <section id="projects" className="mx-auto max-w-5xl scroll-mt-16 px-6 py-20">
+    <section
+      ref={reveal.ref}
+      id="projects"
+      className={`mx-auto max-w-5xl scroll-mt-16 px-6 py-20 ${reveal.className}`}
+    >
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
 
-      <h3 className="text-muted-foreground mt-8 font-mono text-sm tracking-wide uppercase">
-        Client / Proprietary
-      </h3>
-      <div className="mt-4 grid gap-6 sm:grid-cols-2">
-        {CLIENT_PROJECTS.map((project) => (
-          <Card key={project.name} variant="primary-transparent">
-            <CardTitle>{project.name}</CardTitle>
-            <CardDescription>{project.description}</CardDescription>
-            <CardFooter>
-              {project.tags.map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </CardFooter>
-          </Card>
-        ))}
+      <div
+        ref={clientReveal.ref}
+        style={clientReveal.style}
+        className={`mt-8 ${clientReveal.className}`}
+      >
+        <h3 className="text-muted-foreground font-mono text-sm tracking-wide uppercase">
+          Client / Proprietary
+        </h3>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          {CLIENT_PROJECTS.map((project) => (
+            <Card key={project.name} variant="primary-transparent">
+              <CardTitle>{project.name}</CardTitle>
+              <CardDescription>{project.description}</CardDescription>
+              <CardFooter>
+                {project.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </div>
 
-      <h3 className="text-muted-foreground mt-12 font-mono text-sm tracking-wide uppercase">
-        Independent
-      </h3>
-      <p className="text-muted-foreground mt-4">Coming soon.</p>
+      <div
+        ref={independentReveal.ref}
+        style={independentReveal.style}
+        className={`mt-12 ${independentReveal.className}`}
+      >
+        <h3 className="text-muted-foreground font-mono text-sm tracking-wide uppercase">
+          Independent
+        </h3>
+        <p className="text-muted-foreground mt-4">Coming soon.</p>
+      </div>
     </section>
   );
 }
@@ -352,62 +444,101 @@ const EDUCATION = [
     dates: "2026 – 2028, part-time, in progress",
   },
   {
-    qualification: "BA, European Politics",
-    org: "King's College London",
-    dates: "2014 – 2017",
-  },
-  {
     qualification: "Full Stack Web Development",
     org: "Le Wagon",
     dates: "2019 – 2020",
   },
+  {
+    qualification: "BA, European Politics",
+    org: "King's College London",
+    dates: "2014 – 2017",
+  },
 ];
 
 export function About() {
+  const reveal = useReveal<HTMLElement>();
+  const introReveal = useReveal<HTMLDivElement>();
+  const educationReveal = useReveal<HTMLDivElement>(100);
+  const membershipsReveal = useReveal<HTMLDivElement>(200);
   return (
-    <section id="about" className="mx-auto max-w-5xl scroll-mt-16 px-6 py-20">
+    <section
+      ref={reveal.ref}
+      id="about"
+      className={`mx-auto max-w-5xl scroll-mt-16 px-6 py-20 ${reveal.className}`}
+    >
       <h2 className="text-3xl font-bold tracking-tight">About</h2>
 
-      <p className="text-foreground/80 mt-6 max-w-2xl">
-        I&apos;m a senior product engineer with six years of experience
-        building SPAs, mobile apps, and design-system-driven frontends in
-        React, React Native, and TypeScript. I work like a founder rather
-        than a ticket-taker: I conceive, design, and ship product surfaces
-        end-to-end, using AI-native workflows (Claude, agentic tooling) to
-        build at start-up speed.
-      </p>
+      <div
+        ref={introReveal.ref}
+        style={introReveal.style}
+        className={`mt-6 flex items-center justify-between gap-8 ${introReveal.className}`}
+      >
+        {/* Same shared Blob store + react-inlinesvg pattern as the hero's
+         * laptop illustration — fetched and inlined so stroke=currentColor
+         * can follow text-foreground per theme. */}
+        <InlineSVG
+          src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/totti.svg`}
+          aria-hidden="true"
+          className="text-foreground hidden w-24 shrink-0 sm:block sm:w-28"
+        />
+        <p className="text-foreground/80 max-w-2xl">
+          I&apos;m a senior product engineer with six years of experience
+          building SPAs, mobile apps, and design-system-driven frontends in
+          React, React Native, and TypeScript. I work like a founder rather
+          than a ticket-taker: I conceive, design, and ship product surfaces
+          end-to-end, using AI-native workflows (Claude, agentic tooling) to
+          build at start-up speed.
+        </p>
+      </div>
 
-      <h3 className="mt-10 text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-        Education
-      </h3>
-      <ul className="mt-4 space-y-3">
-        {EDUCATION.map((entry) => (
-          <li key={entry.qualification} className="flex flex-wrap items-baseline justify-between gap-x-4">
-            <span>
-              <span className="font-medium">{entry.qualification}</span>{" "}
-              <span className="text-muted-foreground">— {entry.org}</span>
-            </span>
-            <span className="text-muted-foreground font-mono text-sm">{entry.dates}</span>
-          </li>
-        ))}
-      </ul>
+      <div
+        ref={educationReveal.ref}
+        style={educationReveal.style}
+        className={`mt-10 ${educationReveal.className}`}
+      >
+        <h3 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+          Education
+        </h3>
+        <ul className="mt-4 space-y-3">
+          {EDUCATION.map((entry) => (
+            <li key={entry.qualification} className="flex flex-wrap items-baseline justify-between gap-x-4">
+              <span>
+                <span className="font-medium">{entry.qualification}</span>{" "}
+                <span className="text-muted-foreground">— {entry.org}</span>
+              </span>
+              <span className="text-muted-foreground font-mono text-sm">{entry.dates}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-      <h3 className="mt-10 text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-        Memberships
-      </h3>
-      <p className="text-foreground/80 mt-4">
-        <span className="font-medium">Founders of the Future</span> — Fellow.
-        An invite-only community, launched by Founders Forum, for
-        entrepreneurs under 30 identified as most likely to shape the next
-        wave of technology startups.
-      </p>
+      <div
+        ref={membershipsReveal.ref}
+        style={membershipsReveal.style}
+        className={`mt-10 ${membershipsReveal.className}`}
+      >
+        <h3 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+          Memberships
+        </h3>
+        <p className="text-foreground/80 mt-4">
+          <span className="font-medium">Founders of the Future</span> — Fellow.
+          An invite-only community, launched by Founders Forum, for
+          entrepreneurs under 30 identified as most likely to shape the next
+          wave of technology startups.
+        </p>
+      </div>
     </section>
   );
 }
 
 export function Contact() {
+  const reveal = useReveal<HTMLElement>();
   return (
-    <section id="contact" className="mx-auto max-w-5xl scroll-mt-16 px-6 py-20">
+    <section
+      ref={reveal.ref}
+      id="contact"
+      className={`mx-auto max-w-5xl scroll-mt-16 px-6 py-20 ${reveal.className}`}
+    >
       <h2 className="text-3xl font-bold tracking-tight">
         Let&apos;s build something{" "}
         <span className="text-primary font-mono italic">together</span>

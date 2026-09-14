@@ -35,7 +35,7 @@ export function Nav() {
   return (
     <header className="border-border/60 sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-brand-ink font-mono text-sm font-semibold">
+        <Link href="/" className="text-accent font-mono text-sm font-semibold">
           heyitscharlie
         </Link>
         <div className="flex items-center gap-6">
@@ -44,7 +44,7 @@ export function Nav() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-brand-ink text-sm hover:underline"
+                className="text-accent text-sm hover:underline"
               >
                 {link.label}
               </a>
@@ -77,7 +77,7 @@ function RotatingWord() {
 
   return (
     <span
-      className="text-brand-ink inline-block font-mono italic"
+      className="text-accent inline-block font-mono italic"
       style={{ minWidth: `${ROTATING_WORD_MIN_CH}ch` }}
       aria-live="polite"
     >

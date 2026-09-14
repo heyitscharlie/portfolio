@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, CardDescription, CardFooter, CardTitle, useTheme } from "@heyitscharlie/design-system";
-import { Moon, Sun } from "lucide-react";
+import { Button, Card, CardDescription, CardFooter, CardTitle, useIsMobile, useTheme } from "@heyitscharlie/design-system";
+import { ArrowUp, Moon, Sun } from "lucide-react";
 import InlineSVG from "react-inlinesvg";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
@@ -20,6 +20,34 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
       <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z" />
+    </svg>
+  );
+}
+
+// Not a literal reproduction of npm's trademarked logomark, same spirit as
+// the hand-drawn GitHub/LinkedIn glyphs above — a simple outlined square
+// with the wordmark inside, recognizable without copying the real logo.
+function NpmIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      {/* Square spans nearly the full viewBox (1–23), same near-full-bleed
+       * sizing as GithubIcon's path above — a smaller square here would
+       * render as visibly smaller than the other icon even at the same
+       * size-4 box, since SVGs scale their whole viewBox uniformly: how
+       * much of that viewBox the artwork actually fills is what reads as
+       * "the icon's size" to the eye, not the outer CSS box. */}
+      <rect x="1" y="1" width="22" height="22" rx="3" stroke="currentColor" strokeWidth="2" />
+      <text
+        x="12"
+        y="15.5"
+        textAnchor="middle"
+        fontSize="8"
+        fontFamily="var(--font-mono, monospace)"
+        fontWeight="700"
+        fill="currentColor"
+      >
+        npm
+      </text>
     </svg>
   );
 }
@@ -265,6 +293,7 @@ const OTHER_SKILLS = [
 // ending on the skill tags and the social links rather than a second
 // heading breaking the page in two.
 export function Hero() {
+  const isMobile = useIsMobile();
   const reveal = useReveal<HTMLElement>();
   const introReveal = useReveal<HTMLDivElement>();
   const skillsReveal = useReveal<HTMLUListElement>(100);
@@ -304,12 +333,20 @@ export function Hero() {
          * text-foreground class, same as an SVG written inline by hand.
          * A plain <img> can't do this: an image is opaque to page CSS, so
          * its internal stroke color would be stuck at whatever the file
-         * says, with no way to follow the active theme. */}
-        <InlineSVG
-          src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/laptop.svg`}
-          aria-hidden="true"
-          className="text-foreground hidden w-32 shrink-0 sm:block sm:w-40"
-        />
+         * says, with no way to follow the active theme.
+         *
+         * Conditionally rendered on isMobile, not just hidden via a
+         * responsive class — a `hidden sm:block` element still mounts and
+         * still fires react-inlinesvg's fetch even while invisible, which
+         * wastes a request/data on exactly the connections (mobile) where
+         * that matters most. Not rendering it at all skips the fetch. */}
+        {!isMobile && (
+          <InlineSVG
+            src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/laptop.svg`}
+            aria-hidden="true"
+            className="text-foreground w-32 shrink-0 sm:w-40"
+          />
+        )}
       </div>
 
       <ul
@@ -388,6 +425,123 @@ const CLIENT_PROJECTS = [
   },
 ];
 
+// A card can't call useReveal inside the .map() that renders it (hooks
+// can't run a variable number of times per render) — pulled out into its
+// own component so each card instance gets its own hook call, one card
+// per render, same rule as any other list of hook-using components.
+const CARD_STAGGER_MS = 80;
+
+// Glow + a small scale for the "lift" cue — both are transform/shadow,
+// neither participates in layout, so unlike changing width/height/margin
+// on hover, this can't reflow anything below the card or push neighbours
+// around no matter how strong it gets.
+const CARD_HOVER_CLASS =
+  "transition-[transform,box-shadow] duration-500 ease-out hover:scale-[1.008] hover:shadow-[5px_2px_20px_0px_color-mix(in_srgb,var(--color-primary)_28%,transparent)]";
+
+function ClientProjectCard({
+  project,
+  index,
+}: {
+  project: (typeof CLIENT_PROJECTS)[number];
+  index: number;
+}) {
+  // Card isn't a forwardRef component (a plain function component that
+  // spreads ...props onto its own <div>, not one that names and forwards
+  // a ref parameter) — a ref passed straight to <Card> wouldn't attach to
+  // any DOM node, so useReveal's IntersectionObserver would never have
+  // an element to observe and the card would just stay invisible
+  // forever. Wrapping it in a plain div sidesteps that.
+  const reveal = useReveal<HTMLDivElement>(index * CARD_STAGGER_MS);
+  return (
+    <div ref={reveal.ref} style={reveal.style} className={`h-full ${reveal.className}`}>
+      <Card variant="primary-transparent" className={`h-full ${CARD_HOVER_CLASS}`}>
+        <CardTitle>{project.name}</CardTitle>
+        <CardDescription className="flex-1">{project.description}</CardDescription>
+        <CardFooter>
+          {project.tags.map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+type IndependentProjectLink = { type: "github" | "npm"; href: string };
+type IndependentProject =
+  | { kind: "project"; name: string; description: string; links: IndependentProjectLink[] }
+  | { kind: "placeholder" };
+
+const INDEPENDENT_PROJECTS: IndependentProject[] = [
+  {
+    kind: "project",
+    name: "This Portfolio",
+    description:
+      "This site itself — Next.js and the heyitscharlie design system, built and iterated on with Claude.",
+    links: [{ type: "github", href: "https://github.com/heyitscharlie/portfolio" }],
+  },
+  {
+    kind: "project",
+    name: "Design System",
+    description:
+      "The component library and design tokens powering this site.",
+    links: [
+      { type: "github", href: "https://github.com/heyitscharlie/design-system" },
+      { type: "npm", href: "https://www.npmjs.com/package/@heyitscharlie/design-system" },
+    ],
+  },
+  { kind: "placeholder" },
+];
+
+function IndependentProjectCard({
+  project,
+  index,
+}: {
+  project: IndependentProject;
+  index: number;
+}) {
+  const reveal = useReveal<HTMLDivElement>(index * CARD_STAGGER_MS);
+  return (
+    <div ref={reveal.ref} style={reveal.style} className={`h-full ${reveal.className}`}>
+      <Card variant="primary-transparent" className={`h-full ${CARD_HOVER_CLASS}`}>
+        {project.kind === "placeholder" ? (
+          <>
+            <CardTitle>Coming soon</CardTitle>
+            <CardDescription className="flex-1">In progress.</CardDescription>
+          </>
+        ) : (
+          <>
+            <CardTitle>{project.name}</CardTitle>
+            <CardDescription className="flex-1">{project.description}</CardDescription>
+            {/* Plain row, not CardFooter — CardFooter's ·-separator
+             * convention is styled for short text tags (React · Node),
+             * and inserts a baseline-positioned "·" before every
+             * non-first child. Between two icon-sized links that renders
+             * as a stray, oddly-placed dot rather than a separator. */}
+            <div className="mt-1 flex items-center gap-3">
+              {project.links.map((link) => (
+                <a
+                  key={link.type}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={link.type === "github" ? "GitHub" : "npm"}
+                >
+                  {link.type === "github" ? (
+                    <GithubIcon className="size-4" />
+                  ) : (
+                    <NpmIcon className="size-4" />
+                  )}
+                </a>
+              ))}
+            </div>
+          </>
+        )}
+      </Card>
+    </div>
+  );
+}
+
 export function Projects() {
   const reveal = useReveal<HTMLElement>();
   const clientReveal = useReveal<HTMLDivElement>();
@@ -409,16 +563,8 @@ export function Projects() {
           Client / Proprietary
         </h3>
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
-          {CLIENT_PROJECTS.map((project) => (
-            <Card key={project.name} variant="primary-transparent">
-              <CardTitle>{project.name}</CardTitle>
-              <CardDescription>{project.description}</CardDescription>
-              <CardFooter>
-                {project.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
-                ))}
-              </CardFooter>
-            </Card>
+          {CLIENT_PROJECTS.map((project, index) => (
+            <ClientProjectCard key={project.name} project={project} index={index} />
           ))}
         </div>
       </div>
@@ -431,7 +577,11 @@ export function Projects() {
         <h3 className="text-muted-foreground font-mono text-sm tracking-wide uppercase">
           Independent
         </h3>
-        <p className="text-muted-foreground mt-4">Coming soon.</p>
+        <div className="mt-4 grid gap-6 sm:grid-cols-3">
+          {INDEPENDENT_PROJECTS.map((project, index) => (
+            <IndependentProjectCard key={index} project={project} index={index} />
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -456,6 +606,7 @@ const EDUCATION = [
 ];
 
 export function About() {
+  const isMobile = useIsMobile();
   const reveal = useReveal<HTMLElement>();
   const introReveal = useReveal<HTMLDivElement>();
   const educationReveal = useReveal<HTMLDivElement>(100);
@@ -475,12 +626,16 @@ export function About() {
       >
         {/* Same shared Blob store + react-inlinesvg pattern as the hero's
          * laptop illustration — fetched and inlined so stroke=currentColor
-         * can follow text-foreground per theme. */}
-        <InlineSVG
-          src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/totti.svg`}
-          aria-hidden="true"
-          className="text-foreground hidden w-24 shrink-0 sm:block sm:w-28"
-        />
+         * can follow text-foreground per theme. Conditionally rendered on
+         * isMobile rather than hidden via a responsive class — see the
+         * comment on the laptop illustration in Hero for why. */}
+        {!isMobile && (
+          <InlineSVG
+            src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/totti.svg`}
+            aria-hidden="true"
+            className="text-foreground w-24 shrink-0 sm:w-28"
+          />
+        )}
         <p className="text-foreground/80 max-w-2xl">
           I&apos;m a senior product engineer with six years of experience
           building SPAs, mobile apps, and design-system-driven frontends in
@@ -559,5 +714,39 @@ export function Contact() {
         </Button>
       </div>
     </section>
+  );
+}
+
+const BACK_TO_TOP_THRESHOLD = 400; // px scrolled before the button appears
+
+export function BackToTop() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setVisible(window.scrollY > BACK_TO_TOP_THRESHOLD);
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <Button
+      variant="default"
+      size="icon"
+      aria-label="Back to top"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      className={`fixed right-6 bottom-6 z-10 shadow-lg transition-opacity duration-300 ${
+        visible ? "opacity-100" : "pointer-events-none opacity-0"
+      }`}
+    >
+      <ArrowUp className="size-4" />
+    </Button>
   );
 }

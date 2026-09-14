@@ -5,6 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Card, CardDescription, CardFooter, CardTitle, useIsMobile, useTheme } from "@heyitscharlie/design-system";
 import { ArrowUp, Moon, Sun } from "lucide-react";
 import InlineSVG from "react-inlinesvg";
+import type {
+  AboutData,
+  ContactData,
+  HeroData,
+  ProjectData,
+  SkillData,
+} from "../../sanity/lib/queries";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
 // since GitHub/LinkedIn aren't available as importable icons any more.
@@ -51,6 +58,21 @@ function NpmIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+// Same "recognizable, not a literal trademark reproduction" approach as
+// the other icons — a simple rounded-square camera glyph rather than the
+// actual Instagram logomark.
+function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="2" />
+      <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="2" />
+      <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+const FOOTER_NOTE_ICONS = { instagram: InstagramIcon, github: GithubIcon, npm: NpmIcon } as const;
 
 const LINKEDIN_URL = "https://linkedin.com/in/charlie-martins";
 const GITHUB_URL = "https://github.com/charlie-martins";
@@ -240,51 +262,64 @@ export function Nav() {
   );
 }
 
-const ROTATING_WORDS = ["cool", "awesome", "fast", "interesting"];
 const ROTATE_INTERVAL_MS = 2200;
-// Reserve space for the longest word so the headline's wrap point never
-// changes as shorter words rotate through — otherwise the line (and
-// everything below it) jumps every 2.2s whenever a word happens to be
-// just short enough to fit where a longer one wrapped.
-const ROTATING_WORD_MIN_CH = Math.max(...ROTATING_WORDS.map((word) => word.length));
 
-function RotatingWord() {
+// Fallback content -- used if Sanity has no document yet (a fresh
+// dataset, or the fetch fails) so the site never renders blank. Once
+// Studio has real content this data is never seen.
+const DEFAULT_ROTATING_WORDS = ["cool", "awesome", "fast", "interesting"];
+const DEFAULT_HERO: HeroData = {
+  rotatingWords: DEFAULT_ROTATING_WORDS,
+  introParagraphs: [
+    "I'm a senior product engineer with six years building SPAs, mobile apps, and design-system-driven frontends in React, React Native, and TypeScript. I work like a founder rather than a ticket-taker — I conceive, design, and ship product surfaces end-to-end, and I lean on AI-native workflows to build at start-up speed.",
+    "I'm currently completing an MSc in Computer Science with Artificial Intelligence at the University of York — the tools keep changing, and I want to understand them properly, not just use them.",
+  ],
+};
+const DEFAULT_SKILLS: SkillData[] = [
+  { name: "TypeScript", core: true },
+  { name: "React", core: true },
+  { name: "React Native", core: true },
+  { name: "JavaScript", core: true },
+  { name: "Node", core: true },
+  { name: "AI-native workflows", core: true },
+  { name: "Python", core: false },
+  { name: "SDUI", core: false },
+  { name: "Contentful", core: false },
+  { name: "Algolia", core: false },
+  { name: "HubSpot", core: false },
+  { name: "Eppo", core: false },
+  { name: "Segment", core: false },
+  { name: "Storybook", core: false },
+  { name: "PostHog", core: false },
+  { name: "CI/CD", core: false },
+  { name: "GitHub Actions", core: false },
+];
+
+function RotatingWord({ words }: { words: string[] }) {
   const [index, setIndex] = useState(0);
+  // Reserve space for the longest word so the headline's wrap point never
+  // changes as shorter words rotate through — otherwise the line (and
+  // everything below it) jumps every 2.2s whenever a word happens to be
+  // just short enough to fit where a longer one wrapped.
+  const minCh = Math.max(...words.map((word) => word.length));
 
   useEffect(() => {
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % ROTATING_WORDS.length);
+      setIndex((i) => (i + 1) % words.length);
     }, ROTATE_INTERVAL_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [words]);
 
   return (
     <span
       className="text-primary inline-block font-mono italic"
-      style={{ minWidth: `${ROTATING_WORD_MIN_CH}ch` }}
+      style={{ minWidth: `${minCh}ch` }}
       aria-live="polite"
     >
-      {ROTATING_WORDS[index]}
+      {words[index % words.length]}
     </span>
   );
 }
-
-// Core stack first, styled distinctly (primary text/outline) from the
-// rest — everything else stays in the neutral style, ordered after.
-const CORE_SKILLS = ["TypeScript", "React", "React Native", "JavaScript", "Node", "AI-native workflows"];
-const OTHER_SKILLS = [
-  "Python",
-  "SDUI",
-  "Contentful",
-  "Algolia",
-  "HubSpot",
-  "Eppo",
-  "Segment",
-  "Storybook",
-  "PostHog",
-  "CI/CD",
-  "GitHub Actions",
-];
 
 // Skills & background used to be its own section below Hero, with its own
 // heading — visually a second, separate block. It's really the same
@@ -292,19 +327,27 @@ const OTHER_SKILLS = [
 // intro text, so it's folded into Hero itself: one section, one read,
 // ending on the skill tags and the social links rather than a second
 // heading breaking the page in two.
-export function Hero() {
+export function Hero({
+  hero = DEFAULT_HERO,
+  skills = DEFAULT_SKILLS,
+}: {
+  hero?: HeroData;
+  skills?: SkillData[];
+}) {
   const isMobile = useIsMobile();
   const reveal = useReveal<HTMLElement>();
   const introReveal = useReveal<HTMLDivElement>();
   const skillsReveal = useReveal<HTMLUListElement>(100);
   const socialReveal = useReveal<HTMLDivElement>(200);
+  const coreSkills = skills.filter((s) => s.core);
+  const otherSkills = skills.filter((s) => !s.core);
   return (
     <section
       ref={reveal.ref}
-      className={`mx-auto max-w-5xl px-6 pt-20 pb-20 ${reveal.className}`}
+      className={`mx-auto flex min-h-dvh max-w-5xl flex-col justify-center px-6 pt-20 pb-20 ${reveal.className}`}
     >
       <h1 className="text-5xl font-bold tracking-tight text-balance sm:text-6xl">
-        Let&apos;s build something <RotatingWord />
+        Let&apos;s build something <RotatingWord words={hero.rotatingWords} />
       </h1>
 
       <div
@@ -313,20 +356,9 @@ export function Hero() {
         className={`mt-12 flex items-start gap-8 ${introReveal.className}`}
       >
         <div className="max-w-2xl space-y-4 text-foreground/80">
-          <p>
-            I&apos;m a senior product engineer with six years building SPAs,
-            mobile apps, and design-system-driven frontends in React, React
-            Native, and TypeScript. I work like a founder rather than a
-            ticket-taker — I conceive, design, and ship product surfaces
-            end-to-end, and I lean on AI-native workflows to build at
-            start-up speed.
-          </p>
-          <p>
-            I&apos;m currently completing an MSc in Computer Science with
-            Artificial Intelligence at the University of York — the tools
-            keep changing, and I want to understand them properly, not just
-            use them.
-          </p>
+          {hero.introParagraphs.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
         </div>
         {/* Hand-drawn line art, kept in the shared Blob store (not bundled
          * into the repo) and fetched + inlined into the DOM by
@@ -356,20 +388,20 @@ export function Hero() {
         style={skillsReveal.style}
         className={`mt-12 flex flex-wrap gap-2 ${skillsReveal.className}`}
       >
-        {CORE_SKILLS.map((skill) => (
+        {coreSkills.map((skill) => (
           <li
-            key={skill}
+            key={skill.name}
             className="border-primary text-primary rounded-md border px-3 py-1 font-mono text-sm"
           >
-            {skill}
+            {skill.name}
           </li>
         ))}
-        {OTHER_SKILLS.map((skill) => (
+        {otherSkills.map((skill) => (
           <li
-            key={skill}
+            key={skill.name}
             className="border-border rounded-md border px-3 py-1 font-mono text-sm"
           >
-            {skill}
+            {skill.name}
           </li>
         ))}
       </ul>
@@ -394,37 +426,69 @@ export function Hero() {
   );
 }
 
-const CLIENT_PROJECTS = [
+const DEFAULT_CLIENT_PROJECTS: ProjectData[] = [
   {
     name: "Agentic AI",
     description:
       "I built Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base — authenticated KB sync, PydanticAI agents, guardrail evals — end to end in a two-week R&D rotation: 227 commits, 10 PRs, ten working days.",
+    group: "client",
     tags: ["PydanticAI", "Python", "Celery"],
+    links: null,
   },
   {
     name: "Mobile Applications",
     description:
       "I've taken React Native apps from scratch to launch as founding engineer — one MVP strong enough to raise £150k — and owned existing apps through major redesigns and new feature work.",
+    group: "client",
     tags: ["React Native"],
+    links: null,
   },
   {
     name: "Automated Notifications System",
     description:
       "I built a fully automated, multi-channel notifications system tying together scheduling, orchestration, transactional email, and marketing automation — QStash, Knock, Mandrill, and HubSpot working as one pipeline. Part of a marketing capture project that lifted opt-ins by 20%.",
+    group: "client",
     tags: ["QStash", "Knock", "Mandrill"],
+    links: null,
   },
   {
     name: "Passenger Flagging System",
     description:
       "I owned a passenger risk-flagging system full-stack — evaluation engine, event publishing, and GraphQL on the backend, the host-facing management UI on the frontend — carrying the whole build across both repos myself.",
+    group: "client",
     tags: ["Django", "GraphQL", "React"],
+    links: null,
   },
   {
     name: "In-browser desktop environment",
     description:
       "Under NDA for a stealth US tech company, I rebuilt an internal hardware-management system in React — a full in-browser desktop environment, complete with its own browser, a note-taking app, and exam-evaluation logic.",
+    group: "client",
     tags: ["React"],
+    links: null,
   },
+];
+
+const DEFAULT_INDEPENDENT_PROJECTS: ProjectData[] = [
+  {
+    name: "This Portfolio",
+    description: "This site, actually — built with Next.js and my own heyitscharlie design system.",
+    group: "independent",
+    tags: null,
+    links: [{ type: "github", href: "https://github.com/heyitscharlie/portfolio" }],
+  },
+  {
+    name: "Design System",
+    description:
+      "The component library and design tokens I built to power this site — and whatever I build next.",
+    group: "independent",
+    tags: null,
+    links: [
+      { type: "github", href: "https://github.com/heyitscharlie/design-system" },
+      { type: "npm", href: "https://www.npmjs.com/package/@heyitscharlie/design-system" },
+    ],
+  },
+  { name: "Coming soon", description: "In progress.", group: "independent", tags: null, links: null },
 ];
 
 // A card can't call useReveal inside the .map() that renders it (hooks
@@ -440,13 +504,7 @@ const CARD_STAGGER_MS = 80;
 const CARD_HOVER_CLASS =
   "transition-[transform,box-shadow] duration-500 ease-out hover:scale-[1.008] hover:shadow-[5px_2px_20px_0px_color-mix(in_srgb,var(--color-primary)_28%,transparent)]";
 
-function ClientProjectCard({
-  project,
-  index,
-}: {
-  project: (typeof CLIENT_PROJECTS)[number];
-  index: number;
-}) {
+function ClientProjectCard({ project, index }: { project: ProjectData; index: number }) {
   // Card isn't a forwardRef component (a plain function component that
   // spreads ...props onto its own <div>, not one that names and forwards
   // a ref parameter) — a ref passed straight to <Card> wouldn't attach to
@@ -459,49 +517,19 @@ function ClientProjectCard({
       <Card variant="primary-transparent" className={`h-full ${CARD_HOVER_CLASS}`}>
         <CardTitle>{project.name}</CardTitle>
         <CardDescription className="flex-1">{project.description}</CardDescription>
-        <CardFooter>
-          {project.tags.map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </CardFooter>
+        {project.tags && project.tags.length > 0 && (
+          <CardFooter>
+            {project.tags.map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
 }
 
-type IndependentProjectLink = { type: "github" | "npm"; href: string };
-type IndependentProject =
-  | { kind: "project"; name: string; description: string; links: IndependentProjectLink[] }
-  | { kind: "placeholder" };
-
-const INDEPENDENT_PROJECTS: IndependentProject[] = [
-  {
-    kind: "project",
-    name: "This Portfolio",
-    description:
-      "This site, actually — built with Next.js and my own heyitscharlie design system.",
-    links: [{ type: "github", href: "https://github.com/heyitscharlie/portfolio" }],
-  },
-  {
-    kind: "project",
-    name: "Design System",
-    description:
-      "The component library and design tokens I built to power this site — and whatever I build next.",
-    links: [
-      { type: "github", href: "https://github.com/heyitscharlie/design-system" },
-      { type: "npm", href: "https://www.npmjs.com/package/@heyitscharlie/design-system" },
-    ],
-  },
-  { kind: "placeholder" },
-];
-
-function IndependentProjectCard({
-  project,
-  index,
-}: {
-  project: IndependentProject;
-  index: number;
-}) {
+function IndependentProjectCard({ project, index }: { project: ProjectData; index: number }) {
   const reveal = useReveal<HTMLDivElement>(index * CARD_STAGGER_MS);
   return (
     <div
@@ -517,49 +545,49 @@ function IndependentProjectCard({
        * lets it participate in the flex line's natural stretch, and h-full
        * on Card below fills whatever height that resolves to. */}
       <Card variant="primary-transparent" className={`h-full ${CARD_HOVER_CLASS}`}>
-        {project.kind === "placeholder" ? (
-          <>
-            <CardTitle>Coming soon</CardTitle>
-            <CardDescription className="flex-1">In progress.</CardDescription>
-          </>
-        ) : (
-          <>
-            <CardTitle>{project.name}</CardTitle>
-            <CardDescription className="flex-1">{project.description}</CardDescription>
-            {/* Plain row, not CardFooter — CardFooter's ·-separator
-             * convention is styled for short text tags (React · Node),
-             * and inserts a baseline-positioned "·" before every
-             * non-first child. Between two icon-sized links that renders
-             * as a stray, oddly-placed dot rather than a separator. */}
-            <div className="mt-1 flex items-center gap-3">
-              {project.links.map((link) => (
-                <a
-                  key={link.type}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={link.type === "github" ? "GitHub" : "npm"}
-                >
-                  {link.type === "github" ? (
-                    <GithubIcon className="size-4" />
-                  ) : (
-                    <NpmIcon className="size-4" />
-                  )}
-                </a>
-              ))}
-            </div>
-          </>
+        <CardTitle>{project.name}</CardTitle>
+        <CardDescription className="flex-1">{project.description}</CardDescription>
+        {/* Plain row, not CardFooter — CardFooter's ·-separator convention
+         * is styled for short text tags (React · Node), and inserts a
+         * baseline-positioned "·" before every non-first child. Between
+         * two icon-sized links that renders as a stray, oddly-placed dot
+         * rather than a separator. No links (the "Coming soon"
+         * placeholder) means this row just doesn't render. */}
+        {project.links && project.links.length > 0 && (
+          <div className="mt-1 flex items-center gap-3">
+            {project.links.map((link) => (
+              <a
+                key={link.type}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={link.type === "github" ? "GitHub" : "npm"}
+              >
+                {link.type === "github" ? (
+                  <GithubIcon className="size-4" />
+                ) : (
+                  <NpmIcon className="size-4" />
+                )}
+              </a>
+            ))}
+          </div>
         )}
       </Card>
     </div>
   );
 }
 
-export function Projects() {
+export function Projects({ projects }: { projects?: ProjectData[] }) {
   const isMobile = useIsMobile();
   const reveal = useReveal<HTMLElement>();
   const clientReveal = useReveal<HTMLDivElement>();
   const independentReveal = useReveal<HTMLDivElement>(100);
+  const clientProjects = projects
+    ? projects.filter((p) => p.group === "client")
+    : DEFAULT_CLIENT_PROJECTS;
+  const independentProjects = projects
+    ? projects.filter((p) => p.group === "independent")
+    : DEFAULT_INDEPENDENT_PROJECTS;
   return (
     <section
       ref={reveal.ref}
@@ -577,7 +605,7 @@ export function Projects() {
           Client / Proprietary
         </h3>
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
-          {CLIENT_PROJECTS.map((project, index) => (
+          {clientProjects.map((project, index) => (
             <ClientProjectCard key={project.name} project={project} index={index} />
           ))}
         </div>
@@ -602,8 +630,8 @@ export function Projects() {
             />
           )}
           <div className="flex flex-1 flex-wrap gap-6">
-            {INDEPENDENT_PROJECTS.map((project, index) => (
-              <IndependentProjectCard key={index} project={project} index={index} />
+            {independentProjects.map((project, index) => (
+              <IndependentProjectCard key={project.name} project={project} index={index} />
             ))}
           </div>
         </div>
@@ -612,25 +640,23 @@ export function Projects() {
   );
 }
 
-const EDUCATION = [
-  {
-    qualification: "MSc, Computer Science with AI",
-    org: "University of York",
-    dates: "2026 – 2028, part-time, in progress",
-  },
-  {
-    qualification: "Full Stack Web Development",
-    org: "Le Wagon",
-    dates: "2019 – 2020",
-  },
-  {
-    qualification: "BA, European Politics",
-    org: "King's College London",
-    dates: "2014 – 2017",
-  },
-];
+const DEFAULT_ABOUT: AboutData = {
+  introParagraph:
+    "I'm a senior product engineer with six years of experience building SPAs, mobile apps, and design-system-driven frontends in React, React Native, and TypeScript. I work like a founder rather than a ticket-taker: I conceive, design, and ship product surfaces end-to-end, using AI-native workflows and agentic tooling to build at start-up speed.",
+  education: [
+    {
+      qualification: "MSc, Computer Science with AI",
+      org: "University of York",
+      dates: "2026 – 2028, part-time, in progress",
+    },
+    { qualification: "Full Stack Web Development", org: "Le Wagon", dates: "2019 – 2020" },
+    { qualification: "BA, European Politics", org: "King's College London", dates: "2014 – 2017" },
+  ],
+  membershipsText:
+    "I'm a Fellow of Founders of the Future — an invite-only community, launched by Founders Forum, for entrepreneurs under 30 identified as most likely to shape the next wave of technology startups.",
+};
 
-export function About() {
+export function About({ about = DEFAULT_ABOUT }: { about?: AboutData }) {
   const isMobile = useIsMobile();
   const reveal = useReveal<HTMLElement>();
   const introReveal = useReveal<HTMLDivElement>();
@@ -649,14 +675,7 @@ export function About() {
         style={introReveal.style}
         className={`mt-6 flex items-center justify-between gap-8 ${introReveal.className}`}
       >
-        <p className="text-foreground/80 max-w-2xl">
-          I&apos;m a senior product engineer with six years of experience
-          building SPAs, mobile apps, and design-system-driven frontends in
-          React, React Native, and TypeScript. I work like a founder rather
-          than a ticket-taker: I conceive, design, and ship product surfaces
-          end-to-end, using AI-native workflows and agentic tooling to build
-          at start-up speed.
-        </p>
+        <p className="text-foreground/80 max-w-2xl">{about.introParagraph}</p>
         {/* Same shared Blob store + react-inlinesvg pattern as the hero's
          * laptop illustration — fetched and inlined so stroke=currentColor
          * can follow text-foreground per theme. Conditionally rendered on
@@ -680,7 +699,7 @@ export function About() {
           Education
         </h3>
         <ul className="mt-4 space-y-3">
-          {EDUCATION.map((entry) => (
+          {about.education.map((entry) => (
             <li
               key={entry.qualification}
               className="flex flex-col gap-y-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-4"
@@ -703,20 +722,37 @@ export function About() {
         <h3 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
           Memberships
         </h3>
-        <p className="text-foreground/80 mt-4">
-          I&apos;m a Fellow of{" "}
-          <span className="font-medium">Founders of the Future</span> — an
-          invite-only community, launched by Founders Forum, for
-          entrepreneurs under 30 identified as most likely to shape the next
-          wave of technology startups.
-        </p>
+        {/* Was a single sentence with "Founders of the Future" bolded
+         * inline — now driven by one plain-text CMS field, so that one
+         * word of styling is gone in exchange for editability. */}
+        <p className="text-foreground/80 mt-4">{about.membershipsText}</p>
       </div>
     </section>
   );
 }
 
-export function Contact() {
+const DEFAULT_CONTACT: ContactData = {
+  blurb: "I'm based in London, UK (remote-first) — best way to reach me is LinkedIn.",
+  footerNotes: [
+    {
+      text: "Illustrations by my lively wife,",
+      linkText: "@bingu.zinha",
+      linkHref: "https://instagram.com/bingu.zinha",
+      icon: "instagram",
+    },
+    {
+      text: "This page was made using",
+      linkText: "@heyitscharlie/design-system",
+      linkHref: "https://www.npmjs.com/package/@heyitscharlie/design-system",
+      icon: "npm",
+    },
+    { text: "© 2026 Charlie Martins", linkText: null, linkHref: null, icon: "none" },
+  ],
+};
+
+export function Contact({ contact = DEFAULT_CONTACT }: { contact?: ContactData }) {
   const reveal = useReveal<HTMLElement>();
+  const footerNotes = contact.footerNotes ?? [];
   return (
     <section
       ref={reveal.ref}
@@ -727,10 +763,7 @@ export function Contact() {
         Let&apos;s build something{" "}
         <span className="text-primary font-mono italic">together</span>
       </h2>
-      <p className="text-foreground/80 mt-4 max-w-2xl">
-        I&apos;m based in London, UK (remote-first) — best way to reach me is
-        LinkedIn.
-      </p>
+      <p className="text-foreground/80 mt-4 max-w-2xl">{contact.blurb}</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <Button asChild variant="outline">
           <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
@@ -743,6 +776,30 @@ export function Contact() {
           </a>
         </Button>
       </div>
+
+      {footerNotes.length > 0 && (
+        <div className="text-muted-foreground mt-12 space-y-1 text-sm">
+          {footerNotes.map((note, i) => {
+            const Icon = note.icon && note.icon !== "none" ? FOOTER_NOTE_ICONS[note.icon] : null;
+            return (
+              <p key={i} className="flex items-center gap-1.5">
+                {note.text}
+                {note.linkText && note.linkHref && (
+                  <a
+                    href={note.linkHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-foreground inline-flex items-center gap-1"
+                  >
+                    {Icon && <Icon className="size-3.5" />}
+                    {note.linkText}
+                  </a>
+                )}
+              </p>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

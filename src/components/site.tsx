@@ -90,7 +90,7 @@ export function Hero() {
   return (
     <section className="mx-auto max-w-5xl px-6 pt-20 pb-16">
       <h1 className="text-5xl font-bold tracking-tight text-balance sm:text-6xl">
-        Let&apos;s build something <RotatingWord />.
+        Let&apos;s build something <RotatingWord />
       </h1>
 
       <div className="mt-8 max-w-2xl space-y-4 text-foreground/80">
@@ -166,9 +166,9 @@ export function Skills() {
 
 const PROJECTS = [
   {
-    name: "Tero",
+    name: "Agentic AI",
     description:
-      "Agentic AI chat platform for hosts, grounded in Much Better Adventures' HubSpot knowledge base. Built independently as proof that AI-native workflows can ship at start-up speed inside an established company.",
+      "Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base, built at Much Better Adventures — proof that AI-native workflows can ship at start-up speed inside an established company.",
     tags: ["React", "TypeScript", "Node"],
   },
   {

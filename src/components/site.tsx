@@ -164,9 +164,32 @@ function RotatingWord() {
   );
 }
 
+// Core stack first, styled distinctly (primary text/outline) from the
+// rest — everything else stays in the neutral style, ordered after.
+const CORE_SKILLS = ["TypeScript", "React", "React Native", "JavaScript", "Node", "AI-native workflows"];
+const OTHER_SKILLS = [
+  "Python",
+  "SDUI",
+  "Contentful",
+  "Algolia",
+  "HubSpot",
+  "Eppo",
+  "Segment",
+  "Storybook",
+  "PostHog",
+  "CI/CD",
+  "GitHub Actions",
+];
+
+// Skills & background used to be its own section below Hero, with its own
+// heading — visually a second, separate block. It's really the same
+// "everything you need to know about me at a glance" content as the
+// intro text, so it's folded into Hero itself: one section, one read,
+// ending on the skill tags and the social links rather than a second
+// heading breaking the page in two.
 export function Hero() {
   return (
-    <section className="mx-auto max-w-5xl px-6 pt-20 pb-16">
+    <section className="mx-auto max-w-5xl px-6 pt-20 pb-20">
       <h1 className="text-5xl font-bold tracking-tight text-balance sm:text-6xl">
         Let&apos;s build something <RotatingWord />
       </h1>
@@ -201,6 +224,25 @@ export function Hero() {
         />
       </div>
 
+      <ul className="mt-8 flex flex-wrap gap-2">
+        {CORE_SKILLS.map((skill) => (
+          <li
+            key={skill}
+            className="border-primary text-primary rounded-md border px-3 py-1 font-mono text-sm"
+          >
+            {skill}
+          </li>
+        ))}
+        {OTHER_SKILLS.map((skill) => (
+          <li
+            key={skill}
+            className="border-border rounded-md border px-3 py-1 font-mono text-sm"
+          >
+            {skill}
+          </li>
+        ))}
+      </ul>
+
       <div className="mt-8 flex gap-3">
         <Button asChild variant="default" size="icon" aria-label="LinkedIn">
           <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
@@ -213,44 +255,6 @@ export function Hero() {
           </a>
         </Button>
       </div>
-    </section>
-  );
-}
-
-const SKILLS = [
-  "TypeScript",
-  "React",
-  "React Native",
-  "JavaScript",
-  "Node",
-  "Python",
-  "SDUI",
-  "Contentful",
-  "Algolia",
-  "HubSpot",
-  "Eppo",
-  "Segment",
-  "Storybook",
-  "PostHog",
-  "CI/CD",
-  "GitHub Actions",
-  "AI-native workflows (Claude)",
-];
-
-export function Skills() {
-  return (
-    <section className="mx-auto max-w-5xl px-6 pb-20">
-      <h2 className="text-3xl font-bold tracking-tight">Skills &amp; background</h2>
-      <ul className="mt-6 flex flex-wrap gap-2">
-        {SKILLS.map((skill) => (
-          <li
-            key={skill}
-            className="border-border rounded-md border px-3 py-1 font-mono text-sm"
-          >
-            {skill}
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }

@@ -190,9 +190,9 @@ const PROJECTS = [
     tags: ["React"],
   },
   {
-    name: "ZIM Connections",
+    name: "Mobile Applications",
     description:
-      "Founding engineer leading a remote team of four through Scrum, from scratch to launch. The MVP raised £150k.",
+      "React Native apps taken from scratch to launch as founding engineer — one MVP strong enough to raise £150k — plus ownership of existing apps through major redesigns and new feature work.",
     tags: ["React Native"],
   },
   {

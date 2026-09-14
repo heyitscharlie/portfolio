@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { Button, CardDescription, CardFooter, CardTitle, cn, ModeToggle } from "@heyitscharlie/design-system";
+import { useEffect, useState } from "react";
+import { Button, Card, CardDescription, CardFooter, CardTitle, ModeToggle } from "@heyitscharlie/design-system";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
 // since GitHub/LinkedIn aren't available as importable icons any more.
@@ -195,151 +195,7 @@ const CLIENT_PROJECTS = [
   },
 ];
 
-/** Whether .dark is currently applied to <html> — watched via
- * MutationObserver so it stays correct when ModeToggle flips it or the
- * OS preference changes (ThemeProvider owns the actual resolution). */
-function useIsDark(): boolean {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const compute = () => setIsDark(root.classList.contains("dark"));
-    compute();
-    const observer = new MutationObserver(compute);
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-
-  return isDark;
-}
-
-/** Tracks scroll progress through an element (0 at "just entered the
- * bottom of the viewport" to 1 at "just left the top") — rAF-throttled
- * so the scroll listener doesn't fire a state update on every pixel. */
-function useScrollProgress<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let ticking = false;
-
-    const measure = () => {
-      ticking = false;
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const total = rect.height + vh;
-      const scrolled = vh - rect.top;
-      setProgress(Math.min(1, Math.max(0, scrolled / total)));
-    };
-
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(measure);
-    };
-
-    measure();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  return { ref, progress };
-}
-
-// A holographic-foil look, not the design-system's own (deliberately
-// subtle, single-hue) gradient token — this is a portfolio-only effect,
-// modeled on Back Market's refurb-spec cards: a multi-hue pastel sweep
-// plus a fine diagonal diffraction-line texture, both panning together
-// on scroll so the whole row catches the light in sync. The hue sweep
-// comes from the theme's own --primary/--accent (mixed toward white for
-// the pastel-foil look) rather than hardcoded hex — stays on-palette
-// automatically if mustard/space or light/dark changes, instead of an
-// arbitrary rainbow unrelated to the site's actual colors. This is a
-// plain inline style, not a Tailwind class/@apply, so it's parsed
-// directly by the browser at runtime — none of the Lightning CSS
-// @supports color-mix() fallback risk that bit the design-system's own
-// gradient token applies here.
-//
-// Fixed hex, not var(--primary)/var(--accent): this design system's
-// primary/accent deliberately INVERT lightness per mode (dark in light
-// mode, light in dark mode — so they read as accents against whichever
-// background they're on), which made the card mirror that inversion
-// nonsensically. These are the space palette's own vivid/light purple
-// members, held constant as raw hue anchors — light mode mixes them
-// toward white (pastel foil), dark mode mixes them toward black (deep,
-// saturated foil), so it stays dark-appropriate rather than the same
-// pale card regardless of mode.
-//
-// Percentages swing wide (15-85%, not a narrow 15-50% band) so the five
-// stops are visibly distinct from each other — with a narrow band every
-// stop was a similar pale/dark wash, so panning background-position on
-// scroll produced no perceptible change even though it was genuinely
-// animating. Wide swings make the pan actually visible.
-const HOLOGRAM_HUE_A = "#a710f9";
-const HOLOGRAM_HUE_B = "#d183fc";
-const HOLOGRAM_BACKGROUND_LIGHT = `linear-gradient(
-  115deg,
-  color-mix(in oklch, ${HOLOGRAM_HUE_A} 70%, white),
-  color-mix(in oklch, ${HOLOGRAM_HUE_B} 85%, white),
-  color-mix(in oklch, ${HOLOGRAM_HUE_A} 25%, white),
-  color-mix(in oklch, ${HOLOGRAM_HUE_B} 90%, white),
-  color-mix(in oklch, ${HOLOGRAM_HUE_A} 55%, white)
-)`;
-const HOLOGRAM_BACKGROUND_DARK = `linear-gradient(
-  115deg,
-  color-mix(in oklch, ${HOLOGRAM_HUE_A} 55%, black),
-  color-mix(in oklch, ${HOLOGRAM_HUE_B} 35%, black),
-  color-mix(in oklch, ${HOLOGRAM_HUE_A} 80%, black),
-  color-mix(in oklch, ${HOLOGRAM_HUE_B} 25%, black),
-  color-mix(in oklch, ${HOLOGRAM_HUE_A} 60%, black)
-)`;
-const HOLOGRAM_LINES =
-  "repeating-linear-gradient(115deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 1px, transparent 1px, transparent 3px)";
-
-function HolographicCard({
-  project,
-  progress,
-  isDark,
-}: {
-  project: (typeof CLIENT_PROJECTS)[number];
-  progress: number;
-  isDark: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "relative flex flex-col gap-3 overflow-hidden rounded-xl p-6",
-        isDark ? "text-neutral-50" : "text-neutral-900"
-      )}
-      style={{
-        background: isDark ? HOLOGRAM_BACKGROUND_DARK : HOLOGRAM_BACKGROUND_LIGHT,
-        backgroundSize: "400% 400%",
-        backgroundPosition: `${progress * 100}% ${progress * 100}%`,
-      }}
-    >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ backgroundImage: HOLOGRAM_LINES, mixBlendMode: "overlay" }}
-      />
-      <div className="relative z-10 flex flex-col gap-3">
-        <CardTitle>{project.name}</CardTitle>
-        <CardDescription>{project.description}</CardDescription>
-        <CardFooter>
-          {project.tags.map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </CardFooter>
-      </div>
-    </div>
-  );
-}
-
 export function Projects() {
-  const { ref, progress } = useScrollProgress<HTMLDivElement>();
-  const isDark = useIsDark();
-
   return (
     <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
@@ -347,9 +203,17 @@ export function Projects() {
       <h3 className="text-muted-foreground mt-8 font-mono text-sm tracking-wide uppercase">
         Client / Proprietary
       </h3>
-      <div ref={ref} className="mt-4 grid gap-6 sm:grid-cols-2">
+      <div className="mt-4 grid gap-6 sm:grid-cols-2">
         {CLIENT_PROJECTS.map((project) => (
-          <HolographicCard key={project.name} project={project} progress={progress} isDark={isDark} />
+          <Card key={project.name} variant="primary-transparent">
+            <CardTitle>{project.name}</CardTitle>
+            <CardDescription>{project.description}</CardDescription>
+            <CardFooter>
+              {project.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </CardFooter>
+          </Card>
         ))}
       </div>
 

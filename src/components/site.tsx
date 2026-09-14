@@ -26,7 +26,6 @@ const LINKEDIN_URL = "https://linkedin.com/in/charlie-martins";
 const GITHUB_URL = "https://github.com/charlie-martins";
 
 const NAV_LINKS = [
-  { href: "#work", label: "Work" },
   { href: "#projects", label: "Projects" },
   { href: "#about", label: "About" },
   { href: "#contact", label: "Contact" },
@@ -152,86 +151,6 @@ export function Skills() {
           </li>
         ))}
       </ul>
-    </section>
-  );
-}
-
-const EXPERIENCE = [
-  {
-    role: "Senior Product Engineer",
-    org: "Much Better Adventures",
-    dates: "Jan 2026 – Present",
-    bullets: [
-      "Built Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base, using React, TypeScript, and Node, as part of MBA's broader automation programme.",
-      "Led engineering on host-facing initiatives, including automated flagging of at-risk passengers and a full React Native rebuild of the customer-facing app.",
-      "Shipped a marketing capture project that lifted opt-ins by 20%.",
-      "Automated the PR → review → test → deploy pipeline using AI tooling.",
-    ],
-  },
-  {
-    role: "React / React Native Developer (Contract)",
-    org: "Self-employed",
-    dates: "Apr 2025 – Present",
-    bullets: [
-      "Engaged by a stealth US tech company (NDA) to rebuild their internal hardware-management systems in React — a full in-browser desktop environment, including a browser, note-taking app, and exam evaluation logic.",
-      "Alongside contracting, designed and built a portfolio of independent products to keep shipping outside client work.",
-    ],
-  },
-  {
-    role: "Senior Frontend Product Engineer",
-    org: "Bippit",
-    dates: "Apr 2024 – Dec 2024",
-    bullets: [
-      "Owned the existing React Native app on Bippit's financial-wellbeing coaching platform while shipping new TypeScript-built features, including money dashboards and an improved advisor–customer chat experience.",
-    ],
-  },
-  {
-    role: "Senior Software Engineer",
-    org: "QBE Europe",
-    dates: "Feb 2023 – Dec 2023",
-    bullets: [
-      "Delivered improvements to internal underwriting tools used by the company's insurance underwriters.",
-    ],
-  },
-  {
-    role: "Founding Engineer",
-    org: "ZIM Connections",
-    dates: "Mar 2022 – Oct 2022",
-    bullets: [
-      "Led a remote team of four developers, applying Scrum methodology, to build a React Native product from scratch and take it to launch — raising £150k on the strength of the MVP.",
-    ],
-  },
-  {
-    role: "Software Development Consultant",
-    org: "Alfa Financial Software",
-    dates: "Jan 2020 – Feb 2022",
-    bullets: [
-      "Worked as an implementation and software consultant, configuring and delivering the company's software for client sites.",
-    ],
-  },
-];
-
-export function Work() {
-  return (
-    <section id="work" className="mx-auto max-w-5xl px-6 py-20">
-      <h2 className="text-3xl font-bold tracking-tight">Work</h2>
-      <ol className="mt-8 space-y-10">
-        {EXPERIENCE.map((job) => (
-          <li key={`${job.org}-${job.role}`}>
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h3 className="text-lg font-semibold">
-                {job.role} <span className="text-muted-foreground font-normal">— {job.org}</span>
-              </h3>
-              <span className="text-muted-foreground font-mono text-sm">{job.dates}</span>
-            </div>
-            <ul className="text-foreground/80 mt-2 list-disc space-y-1 pl-5">
-              {job.bullets.map((bullet) => (
-                <li key={bullet}>{bullet}</li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
     </section>
   );
 }

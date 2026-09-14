@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button, Card, CardDescription, CardFooter, CardTitle, useTheme } from "@heyitscharlie/design-system";
 import { Moon, Sun } from "lucide-react";
+import InlineSVG from "react-inlinesvg";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
 // since GitHub/LinkedIn aren't available as importable icons any more.
@@ -90,9 +91,9 @@ function WordMark(props: React.SVGProps<SVGSVGElement>) {
 export function Nav() {
   return (
     <header className="sticky top-0 z-10 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between px-6 py-4">
         <Link href="/" className="text-primary">
-          <WordMark className="h-5 w-auto" />
+          <WordMark className="h-8 w-auto" />
         </Link>
         <div className="flex items-center gap-6">
           <nav className="flex items-center gap-6">
@@ -149,19 +150,34 @@ export function Hero() {
         Let&apos;s build something <RotatingWord />
       </h1>
 
-      <div className="mt-8 max-w-2xl space-y-4 text-foreground/80">
-        <p>
-          Senior product engineer with six years building SPAs, mobile apps,
-          and design-system-driven frontends in React, React Native, and
-          TypeScript. I work like a founder rather than a ticket-taker —
-          conceiving, designing, and shipping product surfaces end-to-end,
-          using AI-native workflows to build at start-up speed.
-        </p>
-        <p>
-          Currently completing an MSc in Computer Science with Artificial
-          Intelligence at the University of York — the tools keep changing,
-          and I want to understand them properly, not just use them.
-        </p>
+      <div className="mt-8 flex items-start gap-8">
+        <div className="max-w-2xl space-y-4 text-foreground/80">
+          <p>
+            Senior product engineer with six years building SPAs, mobile apps,
+            and design-system-driven frontends in React, React Native, and
+            TypeScript. I work like a founder rather than a ticket-taker —
+            conceiving, designing, and shipping product surfaces end-to-end,
+            using AI-native workflows to build at start-up speed.
+          </p>
+          <p>
+            Currently completing an MSc in Computer Science with Artificial
+            Intelligence at the University of York — the tools keep changing,
+            and I want to understand them properly, not just use them.
+          </p>
+        </div>
+        {/* Hand-drawn line art, kept in the shared Blob store (not bundled
+         * into the repo) and fetched + inlined into the DOM by
+         * react-inlinesvg — that's what lets an SVG sourced from a remote
+         * URL still pick up stroke="currentColor" from the wrapping
+         * text-foreground class, same as an SVG written inline by hand.
+         * A plain <img> can't do this: an image is opaque to page CSS, so
+         * its internal stroke color would be stuck at whatever the file
+         * says, with no way to follow the active theme. */}
+        <InlineSVG
+          src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/laptop.svg`}
+          aria-hidden="true"
+          className="text-foreground hidden w-32 shrink-0 sm:block sm:w-40"
+        />
       </div>
 
       <div className="mt-8 flex gap-3">

@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button, ModeToggle } from "@heyitscharlie/design-system";
-import { Mail } from "lucide-react";
+import { Button, Card, CardDescription, CardFooter, CardTitle, ModeToggle } from "@heyitscharlie/design-system";
 
 // lucide-react dropped brand/logo glyphs (trademark policy) — inlined here
 // since GitHub/LinkedIn aren't available as importable icons any more.
@@ -25,7 +24,6 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
 
 const LINKEDIN_URL = "https://linkedin.com/in/charlie-martins";
 const GITHUB_URL = "https://github.com/charlie-martins";
-const EMAIL = "heyitscharliem@gmail.com";
 
 const NAV_LINKS = [
   { href: "#work", label: "Work" },
@@ -105,11 +103,6 @@ export function Hero() {
       </div>
 
       <div className="mt-8 flex gap-3">
-        <Button asChild variant="default" size="icon" aria-label="Email">
-          <a href={`mailto:${EMAIL}`}>
-            <Mail />
-          </a>
-        </Button>
         <Button asChild variant="default" size="icon" aria-label="LinkedIn">
           <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
             <LinkedinIcon className="size-4" />
@@ -248,21 +241,25 @@ const PROJECTS = [
     name: "Tero",
     description:
       "Agentic AI chat platform for hosts, grounded in Much Better Adventures' HubSpot knowledge base. Built independently as proof that AI-native workflows can ship at start-up speed inside an established company.",
+    tags: ["React", "TypeScript", "Node"],
   },
   {
     name: "In-browser desktop environment",
     description:
       "NDA contract for a stealth US tech company: a full hardware-management rebuild in React, including a browser, a note-taking app, and exam evaluation logic, all running inside the browser.",
+    tags: ["React"],
   },
   {
     name: "ZIM Connections",
     description:
       "Founding engineer leading a remote team of four through Scrum, from scratch to launch. The MVP raised £150k.",
+    tags: ["React Native"],
   },
   {
     name: "Independent products",
     description:
       "A portfolio of self-initiated products designed and shipped solo alongside contract work — kept shipping outside the client relationship.",
+    tags: ["Solo"],
   },
 ];
 
@@ -272,10 +269,15 @@ export function Projects() {
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
         {PROJECTS.map((project) => (
-          <div key={project.name} className="border-border rounded-lg border p-5">
-            <h3 className="font-semibold">{project.name}</h3>
-            <p className="text-foreground/80 mt-2 text-sm">{project.description}</p>
-          </div>
+          <Card key={project.name} variant="card-transparent">
+            <CardTitle>{project.name}</CardTitle>
+            <CardDescription>{project.description}</CardDescription>
+            <CardFooter>
+              {project.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </CardFooter>
+          </Card>
         ))}
       </div>
     </section>
@@ -347,12 +349,9 @@ export function Contact() {
     <section id="contact" className="mx-auto max-w-5xl px-6 py-20">
       <h2 className="text-3xl font-bold tracking-tight">Contact</h2>
       <p className="text-foreground/80 mt-4 max-w-2xl">
-        London, UK (remote-first). Best reached by email.
+        London, UK (remote-first). Best reached via LinkedIn.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button asChild variant="outline">
-          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-        </Button>
         <Button asChild variant="outline">
           <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
             LinkedIn

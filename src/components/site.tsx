@@ -178,6 +178,12 @@ const PROJECTS = [
     tags: ["Django", "GraphQL", "React"],
   },
   {
+    name: "Automated Notifications System",
+    description:
+      "A fully automated, multi-channel notifications system tying together scheduling, orchestration, transactional email, and marketing automation — QStash, Knock, Mandrill, and HubSpot working as one pipeline. Part of a marketing capture project that lifted opt-ins by 20%.",
+    tags: ["QStash", "Knock", "Mandrill"],
+  },
+  {
     name: "In-browser desktop environment",
     description:
       "NDA contract for a stealth US tech company: a full hardware-management rebuild in React, including a browser, a note-taking app, and exam evaluation logic, all running inside the browser.",

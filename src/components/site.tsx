@@ -212,6 +212,7 @@ function WordMark(props: React.SVGProps<SVGSVGElement>) {
 const SCROLL_THRESHOLD = 8; // px — small buffer so it doesn't flicker right at the top
 
 export function Nav() {
+  const isMobile = useIsMobile();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -240,8 +241,19 @@ export function Nav() {
       }`}
     >
       <div className="flex items-center justify-between px-6 py-4">
-        <Link href="/" className="text-primary">
-          <WordMark className="h-8 w-auto" />
+        <Link href="/" className="text-primary" aria-label="heyitscharlie">
+          {/* The full wordmark overflows on narrow screens -- swap to the
+           * dot mark below the mobile breakpoint instead of trying to
+           * shrink the script logo down to something illegible. */}
+          {isMobile ? (
+            <InlineSVG
+              src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/dot.svg`}
+              aria-hidden="true"
+              className="h-8 w-auto"
+            />
+          ) : (
+            <WordMark className="h-8 w-auto" />
+          )}
         </Link>
         <div className="flex items-center gap-6">
           <nav className="flex items-center gap-6">
@@ -782,7 +794,7 @@ export function Contact({ contact = DEFAULT_CONTACT }: { contact?: ContactData }
           {footerNotes.map((note, i) => {
             const Icon = note.icon && note.icon !== "none" ? FOOTER_NOTE_ICONS[note.icon] : null;
             return (
-              <p key={i} className="flex items-center gap-1.5">
+              <p key={i} className="flex flex-wrap items-center gap-1.5">
                 {note.text}
                 {note.linkText && note.linkHref && (
                   <a

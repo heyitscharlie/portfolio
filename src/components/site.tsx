@@ -172,7 +172,7 @@ const PROJECTS = [
     tags: ["PydanticAI", "Python", "Celery"],
   },
   {
-    name: "Flagging problem passengers",
+    name: "Passenger Flagging System",
     description:
       "Full-stack ownership of a passenger risk-flagging system — evaluation engine, event publishing, and GraphQL on the backend; the host-facing management UI on the frontend. One engineer carrying the whole build across both repos.",
     tags: ["Django", "GraphQL", "React"],

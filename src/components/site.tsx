@@ -57,7 +57,7 @@ export function Nav() {
   );
 }
 
-const ROTATING_WORDS = ["audacious", "resilient", "relentless", "10x"];
+const ROTATING_WORDS = ["great", "useful", "solid", "honest"];
 const ROTATE_INTERVAL_MS = 2200;
 
 function RotatingWord() {

@@ -314,16 +314,18 @@ export function Hero() {
       >
         <div className="max-w-2xl space-y-4 text-foreground/80">
           <p>
-            Senior product engineer with six years building SPAs, mobile apps,
-            and design-system-driven frontends in React, React Native, and
-            TypeScript. I work like a founder rather than a ticket-taker —
-            conceiving, designing, and shipping product surfaces end-to-end,
-            using AI-native workflows to build at start-up speed.
+            I&apos;m a senior product engineer with six years building SPAs,
+            mobile apps, and design-system-driven frontends in React, React
+            Native, and TypeScript. I work like a founder rather than a
+            ticket-taker — I conceive, design, and ship product surfaces
+            end-to-end, and I lean on AI-native workflows to build at
+            start-up speed.
           </p>
           <p>
-            Currently completing an MSc in Computer Science with Artificial
-            Intelligence at the University of York — the tools keep changing,
-            and I want to understand them properly, not just use them.
+            I&apos;m currently completing an MSc in Computer Science with
+            Artificial Intelligence at the University of York — the tools
+            keep changing, and I want to understand them properly, not just
+            use them.
           </p>
         </div>
         {/* Hand-drawn line art, kept in the shared Blob store (not bundled
@@ -396,31 +398,31 @@ const CLIENT_PROJECTS = [
   {
     name: "Agentic AI",
     description:
-      "Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base — authenticated KB sync, PydanticAI agents, guardrail evals. Built end to end in a two-week R&D rotation: 227 commits, 10 PRs, ten working days.",
+      "I built Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base — authenticated KB sync, PydanticAI agents, guardrail evals — end to end in a two-week R&D rotation: 227 commits, 10 PRs, ten working days.",
     tags: ["PydanticAI", "Python", "Celery"],
   },
   {
     name: "Mobile Applications",
     description:
-      "React Native apps taken from scratch to launch as founding engineer — one MVP strong enough to raise £150k — plus ownership of existing apps through major redesigns and new feature work.",
+      "I've taken React Native apps from scratch to launch as founding engineer — one MVP strong enough to raise £150k — and owned existing apps through major redesigns and new feature work.",
     tags: ["React Native"],
   },
   {
     name: "Automated Notifications System",
     description:
-      "A fully automated, multi-channel notifications system tying together scheduling, orchestration, transactional email, and marketing automation — QStash, Knock, Mandrill, and HubSpot working as one pipeline. Part of a marketing capture project that lifted opt-ins by 20%.",
+      "I built a fully automated, multi-channel notifications system tying together scheduling, orchestration, transactional email, and marketing automation — QStash, Knock, Mandrill, and HubSpot working as one pipeline. Part of a marketing capture project that lifted opt-ins by 20%.",
     tags: ["QStash", "Knock", "Mandrill"],
   },
   {
     name: "Passenger Flagging System",
     description:
-      "Full-stack ownership of a passenger risk-flagging system — evaluation engine, event publishing, and GraphQL on the backend; the host-facing management UI on the frontend. One engineer carrying the whole build across both repos.",
+      "I owned a passenger risk-flagging system full-stack — evaluation engine, event publishing, and GraphQL on the backend, the host-facing management UI on the frontend — carrying the whole build across both repos myself.",
     tags: ["Django", "GraphQL", "React"],
   },
   {
     name: "In-browser desktop environment",
     description:
-      "NDA contract for a stealth US tech company: a full hardware-management rebuild in React, including a browser, a note-taking app, and exam evaluation logic, all running inside the browser.",
+      "Under NDA for a stealth US tech company, I rebuilt an internal hardware-management system in React — a full in-browser desktop environment, complete with its own browser, a note-taking app, and exam-evaluation logic.",
     tags: ["React"],
   },
 ];
@@ -477,14 +479,14 @@ const INDEPENDENT_PROJECTS: IndependentProject[] = [
     kind: "project",
     name: "This Portfolio",
     description:
-      "This site itself — Next.js and the heyitscharlie design system, built and iterated on with Claude.",
+      "This site, actually — built with Next.js and my own heyitscharlie design system.",
     links: [{ type: "github", href: "https://github.com/heyitscharlie/portfolio" }],
   },
   {
     kind: "project",
     name: "Design System",
     description:
-      "The component library and design tokens powering this site.",
+      "The component library and design tokens I built to power this site — and whatever I build next.",
     links: [
       { type: "github", href: "https://github.com/heyitscharlie/design-system" },
       { type: "npm", href: "https://www.npmjs.com/package/@heyitscharlie/design-system" },
@@ -502,7 +504,18 @@ function IndependentProjectCard({
 }) {
   const reveal = useReveal<HTMLDivElement>(index * CARD_STAGGER_MS);
   return (
-    <div ref={reveal.ref} style={reveal.style} className={`h-full ${reveal.className}`}>
+    <div
+      ref={reveal.ref}
+      style={reveal.style}
+      className={`min-w-[220px] flex-1 basis-56 ${reveal.className}`}
+    >
+      {/* No h-full here (unlike ClientProjectCard's grid) — align-items:
+       * stretch only stretches flex items whose cross-size is auto; an
+       * explicit height like h-full opts an item OUT of stretch, so it'd
+       * just sit at its own content height instead of matching its
+       * siblings on the line. Leaving this wrapper's height auto is what
+       * lets it participate in the flex line's natural stretch, and h-full
+       * on Card below fills whatever height that resolves to. */}
       <Card variant="primary-transparent" className={`h-full ${CARD_HOVER_CLASS}`}>
         {project.kind === "placeholder" ? (
           <>
@@ -543,6 +556,7 @@ function IndependentProjectCard({
 }
 
 export function Projects() {
+  const isMobile = useIsMobile();
   const reveal = useReveal<HTMLElement>();
   const clientReveal = useReveal<HTMLDivElement>();
   const independentReveal = useReveal<HTMLDivElement>(100);
@@ -577,10 +591,21 @@ export function Projects() {
         <h3 className="text-muted-foreground font-mono text-sm tracking-wide uppercase">
           Independent
         </h3>
-        <div className="mt-4 grid gap-6 sm:grid-cols-3">
-          {INDEPENDENT_PROJECTS.map((project, index) => (
-            <IndependentProjectCard key={index} project={project} index={index} />
-          ))}
+        <div className="mt-4 flex items-center gap-8">
+          {/* Same shared Blob store + react-inlinesvg + isMobile pattern as
+           * the hero's laptop illustration. */}
+          {!isMobile && (
+            <InlineSVG
+              src={`${process.env.NEXT_PUBLIC_ASSETS_BASE_URL}/lego.svg`}
+              aria-hidden="true"
+              className="text-foreground w-28 shrink-0 sm:w-32"
+            />
+          )}
+          <div className="flex flex-1 flex-wrap gap-6">
+            {INDEPENDENT_PROJECTS.map((project, index) => (
+              <IndependentProjectCard key={index} project={project} index={index} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -624,6 +649,14 @@ export function About() {
         style={introReveal.style}
         className={`mt-6 flex items-center justify-between gap-8 ${introReveal.className}`}
       >
+        <p className="text-foreground/80 max-w-2xl">
+          I&apos;m a senior product engineer with six years of experience
+          building SPAs, mobile apps, and design-system-driven frontends in
+          React, React Native, and TypeScript. I work like a founder rather
+          than a ticket-taker: I conceive, design, and ship product surfaces
+          end-to-end, using AI-native workflows and agentic tooling to build
+          at start-up speed.
+        </p>
         {/* Same shared Blob store + react-inlinesvg pattern as the hero's
          * laptop illustration — fetched and inlined so stroke=currentColor
          * can follow text-foreground per theme. Conditionally rendered on
@@ -636,14 +669,6 @@ export function About() {
             className="text-foreground w-24 shrink-0 sm:w-28"
           />
         )}
-        <p className="text-foreground/80 max-w-2xl">
-          I&apos;m a senior product engineer with six years of experience
-          building SPAs, mobile apps, and design-system-driven frontends in
-          React, React Native, and TypeScript. I work like a founder rather
-          than a ticket-taker: I conceive, design, and ship product surfaces
-          end-to-end, using AI-native workflows (Claude, agentic tooling) to
-          build at start-up speed.
-        </p>
       </div>
 
       <div
@@ -656,7 +681,10 @@ export function About() {
         </h3>
         <ul className="mt-4 space-y-3">
           {EDUCATION.map((entry) => (
-            <li key={entry.qualification} className="flex flex-wrap items-baseline justify-between gap-x-4">
+            <li
+              key={entry.qualification}
+              className="flex flex-col gap-y-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-4"
+            >
               <span>
                 <span className="font-medium">{entry.qualification}</span>{" "}
                 <span className="text-muted-foreground">— {entry.org}</span>
@@ -676,8 +704,9 @@ export function About() {
           Memberships
         </h3>
         <p className="text-foreground/80 mt-4">
-          <span className="font-medium">Founders of the Future</span> — Fellow.
-          An invite-only community, launched by Founders Forum, for
+          I&apos;m a Fellow of{" "}
+          <span className="font-medium">Founders of the Future</span> — an
+          invite-only community, launched by Founders Forum, for
           entrepreneurs under 30 identified as most likely to shape the next
           wave of technology startups.
         </p>
@@ -699,7 +728,8 @@ export function Contact() {
         <span className="text-primary font-mono italic">together</span>
       </h2>
       <p className="text-foreground/80 mt-4 max-w-2xl">
-        London, UK (remote-first). Best reached via LinkedIn.
+        I&apos;m based in London, UK (remote-first) — best way to reach me is
+        LinkedIn.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
         <Button asChild variant="outline">

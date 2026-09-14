@@ -188,7 +188,7 @@ export function Projects() {
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
         {PROJECTS.map((project) => (
-          <Card key={project.name} variant="card-transparent">
+          <Card key={project.name} variant="primary-transparent">
             <CardTitle>{project.name}</CardTitle>
             <CardDescription>{project.description}</CardDescription>
             <CardFooter>

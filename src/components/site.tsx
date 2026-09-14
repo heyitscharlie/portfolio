@@ -102,9 +102,9 @@ export function Hero() {
           using AI-native workflows to build at start-up speed.
         </p>
         <p>
-          Proof of that: Tero, an agentic AI tool for hosts I built
-          independently at Much Better Adventures, plus a portfolio of
-          self-initiated products shipped solo. Currently completing an MSc
+          Proof of that: Tero, an agentic AI chat platform for hosts, plus a
+          portfolio of self-initiated products shipped solo. Currently
+          completing an MSc
           in Computer Science with Artificial Intelligence at the University
           of York.
         </p>
@@ -168,8 +168,14 @@ const PROJECTS = [
   {
     name: "Agentic AI",
     description:
-      "Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base, built at Much Better Adventures — proof that AI-native workflows can ship at start-up speed inside an established company.",
-    tags: ["React", "TypeScript", "Node"],
+      "Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base — authenticated KB sync, PydanticAI agents, guardrail evals. Built end to end in a two-week R&D rotation: 227 commits, 10 PRs, ten working days.",
+    tags: ["PydanticAI", "Python", "Celery"],
+  },
+  {
+    name: "Flagging problem passengers",
+    description:
+      "Full-stack ownership of a passenger risk-flagging system — evaluation engine, event publishing, and GraphQL on the backend; the host-facing management UI on the frontend. One engineer carrying the whole build across both repos.",
+    tags: ["Django", "GraphQL", "React"],
   },
   {
     name: "In-browser desktop environment",

@@ -325,7 +325,12 @@ function RotatingWord({ words }: { words: string[] }) {
   return (
     <span
       className="text-primary inline-block font-mono italic"
-      style={{ minWidth: `${minCh}ch` }}
+      // Capped against the viewport (min(...)) so a long word (especially
+      // one added later via the CMS, with no character-count limit)
+      // can't force a fixed ch-width wider than the screen itself — that
+      // was the actual source of the mobile horizontal overflow: a long
+      // rotating word reserving more width than a narrow viewport has.
+      style={{ minWidth: `min(${minCh}ch, 60vw)` }}
       aria-live="polite"
     >
       {words[index % words.length]}
@@ -358,7 +363,7 @@ export function Hero({
       ref={reveal.ref}
       className={`mx-auto flex min-h-dvh max-w-5xl flex-col justify-center px-6 pt-20 pb-20 ${reveal.className}`}
     >
-      <h1 className="text-5xl font-bold tracking-tight text-balance sm:text-6xl">
+      <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
         Let&apos;s build something <RotatingWord words={hero.rotatingWords} />
       </h1>
 

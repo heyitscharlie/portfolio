@@ -23,6 +23,10 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const LINKEDIN_URL = "https://linkedin.com/in/charlie-martins";
+const GITHUB_URL = "https://github.com/charlie-martins";
+const EMAIL = "heyitscharliem@gmail.com";
+
 const NAV_LINKS = [
   { href: "#work", label: "Work" },
   { href: "#projects", label: "Projects" },
@@ -80,34 +84,36 @@ export function Hero() {
         Let&apos;s build something <RotatingWord />.
       </h1>
 
-      {/* TODO: replace with real copy */}
       <div className="mt-8 max-w-2xl space-y-4 text-foreground/80">
         <p>
-          Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-          nisi ut aliquip ex ea commodo consequat.
+          Senior product engineer with six years building SPAs, mobile apps,
+          and design-system-driven frontends in React, React Native, and
+          TypeScript. I work like a founder rather than a ticket-taker —
+          conceiving, designing, and shipping product surfaces end-to-end,
+          using AI-native workflows to build at start-up speed.
         </p>
         <p>
-          Duis aute irure dolor in reprehenderit in voluptate velit esse
-          cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-          cupidatat non proident, sunt in culpa qui officia deserunt mollit
-          anim id est laborum.
+          Proof of that: Tero, an agentic AI tool for hosts I built
+          independently at Much Better Adventures, plus a portfolio of
+          self-initiated products shipped solo. Currently completing an MSc
+          in Computer Science with Artificial Intelligence at the University
+          of York.
         </p>
       </div>
 
       <div className="mt-8 flex gap-3">
         <Button asChild variant="default" size="icon" aria-label="Email">
-          <a href="mailto:heyitscharliem@gmail.com">
+          <a href={`mailto:${EMAIL}`}>
             <Mail />
           </a>
         </Button>
         <Button asChild variant="default" size="icon" aria-label="LinkedIn">
-          <a href="https://linkedin.com/in/heyitscharlie" target="_blank" rel="noreferrer">
+          <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
             <LinkedinIcon className="size-4" />
           </a>
         </Button>
         <Button asChild variant="default" size="icon" aria-label="GitHub">
-          <a href="https://github.com/heyitscharlie" target="_blank" rel="noreferrer">
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
             <GithubIcon className="size-4" />
           </a>
         </Button>
@@ -117,22 +123,23 @@ export function Hero() {
 }
 
 const SKILLS = [
-  "JavaScript",
   "TypeScript",
   "React",
-  "Node.js",
+  "React Native",
+  "JavaScript",
+  "Node",
   "Python",
-  "SQL",
-  "AWS",
-  "Docker",
-  "Kubernetes",
-  "GraphQL",
-  "Figma",
+  "SDUI",
+  "Contentful",
+  "Algolia",
+  "HubSpot",
+  "Eppo",
+  "Segment",
+  "Storybook",
+  "PostHog",
   "CI/CD",
-  "Testing",
-  "System Design",
-  "REST APIs",
-  "PostgreSQL",
+  "GitHub Actions",
+  "AI-native workflows (Claude)",
 ];
 
 export function Skills() {
@@ -153,23 +160,207 @@ export function Skills() {
   );
 }
 
-const PLACEHOLDER_SECTIONS = [
-  { id: "work", title: "Work" },
-  { id: "projects", title: "Projects" },
-  { id: "about", title: "About" },
-  { id: "contact", title: "Contact" },
+const EXPERIENCE = [
+  {
+    role: "Senior Product Engineer",
+    org: "Much Better Adventures",
+    dates: "Jan 2026 – Present",
+    bullets: [
+      "Built Tero, an AI chat platform for hosts grounded in the HubSpot knowledge base, using React, TypeScript, and Node, as part of MBA's broader automation programme.",
+      "Led engineering on host-facing initiatives, including automated flagging of at-risk passengers and a full React Native rebuild of the customer-facing app.",
+      "Shipped a marketing capture project that lifted opt-ins by 20%.",
+      "Automated the PR → review → test → deploy pipeline using AI tooling.",
+    ],
+  },
+  {
+    role: "React / React Native Developer (Contract)",
+    org: "Self-employed",
+    dates: "Apr 2025 – Present",
+    bullets: [
+      "Engaged by a stealth US tech company (NDA) to rebuild their internal hardware-management systems in React — a full in-browser desktop environment, including a browser, note-taking app, and exam evaluation logic.",
+      "Alongside contracting, designed and built a portfolio of independent products to keep shipping outside client work.",
+    ],
+  },
+  {
+    role: "Senior Frontend Product Engineer",
+    org: "Bippit",
+    dates: "Apr 2024 – Dec 2024",
+    bullets: [
+      "Owned the existing React Native app on Bippit's financial-wellbeing coaching platform while shipping new TypeScript-built features, including money dashboards and an improved advisor–customer chat experience.",
+    ],
+  },
+  {
+    role: "Senior Software Engineer",
+    org: "QBE Europe",
+    dates: "Feb 2023 – Dec 2023",
+    bullets: [
+      "Delivered improvements to internal underwriting tools used by the company's insurance underwriters.",
+    ],
+  },
+  {
+    role: "Founding Engineer",
+    org: "ZIM Connections",
+    dates: "Mar 2022 – Oct 2022",
+    bullets: [
+      "Led a remote team of four developers, applying Scrum methodology, to build a React Native product from scratch and take it to launch — raising £150k on the strength of the MVP.",
+    ],
+  },
+  {
+    role: "Software Development Consultant",
+    org: "Alfa Financial Software",
+    dates: "Jan 2020 – Feb 2022",
+    bullets: [
+      "Worked as an implementation and software consultant, configuring and delivering the company's software for client sites.",
+    ],
+  },
 ];
 
-/** Anchor targets for the nav links above the fold. Content TBD. */
-export function PlaceholderSections() {
+export function Work() {
   return (
-    <>
-      {PLACEHOLDER_SECTIONS.map((section) => (
-        <section key={section.id} id={section.id} className="mx-auto max-w-5xl px-6 py-20">
-          <h2 className="text-3xl font-bold tracking-tight">{section.title}</h2>
-          <p className="text-muted-foreground mt-4">Content coming soon.</p>
-        </section>
-      ))}
-    </>
+    <section id="work" className="mx-auto max-w-5xl px-6 py-20">
+      <h2 className="text-3xl font-bold tracking-tight">Work</h2>
+      <ol className="mt-8 space-y-10">
+        {EXPERIENCE.map((job) => (
+          <li key={`${job.org}-${job.role}`}>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 className="text-lg font-semibold">
+                {job.role} <span className="text-muted-foreground font-normal">— {job.org}</span>
+              </h3>
+              <span className="text-muted-foreground font-mono text-sm">{job.dates}</span>
+            </div>
+            <ul className="text-foreground/80 mt-2 list-disc space-y-1 pl-5">
+              {job.bullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+const PROJECTS = [
+  {
+    name: "Tero",
+    description:
+      "Agentic AI chat platform for hosts, grounded in Much Better Adventures' HubSpot knowledge base. Built independently as proof that AI-native workflows can ship at start-up speed inside an established company.",
+  },
+  {
+    name: "In-browser desktop environment",
+    description:
+      "NDA contract for a stealth US tech company: a full hardware-management rebuild in React, including a browser, a note-taking app, and exam evaluation logic, all running inside the browser.",
+  },
+  {
+    name: "ZIM Connections",
+    description:
+      "Founding engineer leading a remote team of four through Scrum, from scratch to launch. The MVP raised £150k.",
+  },
+  {
+    name: "Independent products",
+    description:
+      "A portfolio of self-initiated products designed and shipped solo alongside contract work — kept shipping outside the client relationship.",
+  },
+];
+
+export function Projects() {
+  return (
+    <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
+      <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
+      <div className="mt-8 grid gap-6 sm:grid-cols-2">
+        {PROJECTS.map((project) => (
+          <div key={project.name} className="border-border rounded-lg border p-5">
+            <h3 className="font-semibold">{project.name}</h3>
+            <p className="text-foreground/80 mt-2 text-sm">{project.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const EDUCATION = [
+  {
+    qualification: "MSc, Computer Science with AI",
+    org: "University of York",
+    dates: "2026 – 2028, part-time, in progress",
+  },
+  {
+    qualification: "BA, European Politics",
+    org: "King's College London",
+    dates: "2014 – 2017",
+  },
+  {
+    qualification: "Full Stack Web Development",
+    org: "Le Wagon",
+    dates: "2019 – 2020",
+  },
+];
+
+export function About() {
+  return (
+    <section id="about" className="mx-auto max-w-5xl px-6 py-20">
+      <h2 className="text-3xl font-bold tracking-tight">About</h2>
+
+      <p className="text-foreground/80 mt-6 max-w-2xl">
+        I&apos;m a senior product engineer with six years of experience
+        building SPAs, mobile apps, and design-system-driven frontends in
+        React, React Native, and TypeScript. I work like a founder rather
+        than a ticket-taker: I conceive, design, and ship product surfaces
+        end-to-end, using AI-native workflows (Claude, agentic tooling) to
+        build at start-up speed.
+      </p>
+
+      <h3 className="mt-10 text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+        Education
+      </h3>
+      <ul className="mt-4 space-y-3">
+        {EDUCATION.map((entry) => (
+          <li key={entry.qualification} className="flex flex-wrap items-baseline justify-between gap-x-4">
+            <span>
+              <span className="font-medium">{entry.qualification}</span>{" "}
+              <span className="text-muted-foreground">— {entry.org}</span>
+            </span>
+            <span className="text-muted-foreground font-mono text-sm">{entry.dates}</span>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="mt-10 text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+        Memberships
+      </h3>
+      <p className="text-foreground/80 mt-4">
+        <span className="font-medium">Founders of the Future</span> — Fellow.
+        An invite-only community, launched by Founders Forum, for
+        entrepreneurs under 30 identified as most likely to shape the next
+        wave of technology startups.
+      </p>
+    </section>
+  );
+}
+
+export function Contact() {
+  return (
+    <section id="contact" className="mx-auto max-w-5xl px-6 py-20">
+      <h2 className="text-3xl font-bold tracking-tight">Contact</h2>
+      <p className="text-foreground/80 mt-4 max-w-2xl">
+        London, UK (remote-first). Best reached by email.
+      </p>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Button asChild variant="outline">
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </Button>
+      </div>
+    </section>
   );
 }

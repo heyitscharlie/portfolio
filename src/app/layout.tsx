@@ -4,7 +4,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Charlie Martins",
-  description: "Portfolio of Charlie Martins.",
+  description:
+    "Senior product engineer building SPAs, mobile apps, and design-system-driven frontends in React, React Native, and TypeScript.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

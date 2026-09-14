@@ -1,4 +1,4 @@
-import { Hero, Nav, PlaceholderSections, Skills } from "@/components/site";
+import { About, Contact, Hero, Nav, Projects, Skills, Work } from "@/components/site";
 
 export default function Home() {
   return (
@@ -7,7 +7,10 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <Skills />
-        <PlaceholderSections />
+        <Work />
+        <Projects />
+        <About />
+        <Contact />
       </main>
     </div>
   );

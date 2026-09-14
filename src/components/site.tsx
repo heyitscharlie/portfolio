@@ -109,9 +109,32 @@ function WordMark(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const SCROLL_THRESHOLD = 8; // px — small buffer so it doesn't flicker right at the top
+
 export function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrolled(window.scrollY > SCROLL_THRESHOLD);
+        ticking = false;
+      });
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-10 bg-background/80 backdrop-blur">
+    <header
+      className={`sticky top-0 z-10 transition-colors ${
+        scrolled ? "bg-background/80 backdrop-blur" : "bg-transparent"
+      }`}
+    >
       <div className="flex items-center justify-between px-6 py-4">
         <Link href="/" className="text-primary">
           <WordMark className="h-8 w-auto" />
@@ -194,7 +217,7 @@ export function Hero() {
         Let&apos;s build something <RotatingWord />
       </h1>
 
-      <div className="mt-8 flex items-start gap-8">
+      <div className="mt-12 flex items-start gap-8">
         <div className="max-w-2xl space-y-4 text-foreground/80">
           <p>
             Senior product engineer with six years building SPAs, mobile apps,
@@ -224,7 +247,7 @@ export function Hero() {
         />
       </div>
 
-      <ul className="mt-8 flex flex-wrap gap-2">
+      <ul className="mt-12 flex flex-wrap gap-2">
         {CORE_SKILLS.map((skill) => (
           <li
             key={skill}
@@ -243,7 +266,7 @@ export function Hero() {
         ))}
       </ul>
 
-      <div className="mt-8 flex gap-3">
+      <div className="mt-12 flex gap-3">
         <Button asChild variant="default" size="icon" aria-label="LinkedIn">
           <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">
             <LinkedinIcon className="size-4" />
@@ -267,10 +290,10 @@ const CLIENT_PROJECTS = [
     tags: ["PydanticAI", "Python", "Celery"],
   },
   {
-    name: "Passenger Flagging System",
+    name: "Mobile Applications",
     description:
-      "Full-stack ownership of a passenger risk-flagging system — evaluation engine, event publishing, and GraphQL on the backend; the host-facing management UI on the frontend. One engineer carrying the whole build across both repos.",
-    tags: ["Django", "GraphQL", "React"],
+      "React Native apps taken from scratch to launch as founding engineer — one MVP strong enough to raise £150k — plus ownership of existing apps through major redesigns and new feature work.",
+    tags: ["React Native"],
   },
   {
     name: "Automated Notifications System",
@@ -279,22 +302,22 @@ const CLIENT_PROJECTS = [
     tags: ["QStash", "Knock", "Mandrill"],
   },
   {
+    name: "Passenger Flagging System",
+    description:
+      "Full-stack ownership of a passenger risk-flagging system — evaluation engine, event publishing, and GraphQL on the backend; the host-facing management UI on the frontend. One engineer carrying the whole build across both repos.",
+    tags: ["Django", "GraphQL", "React"],
+  },
+  {
     name: "In-browser desktop environment",
     description:
       "NDA contract for a stealth US tech company: a full hardware-management rebuild in React, including a browser, a note-taking app, and exam evaluation logic, all running inside the browser.",
     tags: ["React"],
   },
-  {
-    name: "Mobile Applications",
-    description:
-      "React Native apps taken from scratch to launch as founding engineer — one MVP strong enough to raise £150k — plus ownership of existing apps through major redesigns and new feature work.",
-    tags: ["React Native"],
-  },
 ];
 
 export function Projects() {
   return (
-    <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
+    <section id="projects" className="mx-auto max-w-5xl scroll-mt-16 px-6 py-20">
       <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
 
       <h3 className="text-muted-foreground mt-8 font-mono text-sm tracking-wide uppercase">
@@ -342,7 +365,7 @@ const EDUCATION = [
 
 export function About() {
   return (
-    <section id="about" className="mx-auto max-w-5xl px-6 py-20">
+    <section id="about" className="mx-auto max-w-5xl scroll-mt-16 px-6 py-20">
       <h2 className="text-3xl font-bold tracking-tight">About</h2>
 
       <p className="text-foreground/80 mt-6 max-w-2xl">
@@ -384,8 +407,11 @@ export function About() {
 
 export function Contact() {
   return (
-    <section id="contact" className="mx-auto max-w-5xl px-6 py-20">
-      <h2 className="text-3xl font-bold tracking-tight">Contact</h2>
+    <section id="contact" className="mx-auto max-w-5xl scroll-mt-16 px-6 py-20">
+      <h2 className="text-3xl font-bold tracking-tight">
+        Let&apos;s build something{" "}
+        <span className="text-primary font-mono italic">together</span>
+      </h2>
       <p className="text-foreground/80 mt-4 max-w-2xl">
         London, UK (remote-first). Best reached via LinkedIn.
       </p>

@@ -57,7 +57,7 @@ export function Nav() {
   );
 }
 
-const ROTATING_WORDS = ["great", "useful", "solid", "honest"];
+const ROTATING_WORDS = ["cool", "awesome", "fast", "interesting"];
 const ROTATE_INTERVAL_MS = 2200;
 
 function RotatingWord() {
